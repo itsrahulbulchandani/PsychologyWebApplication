@@ -212,7 +212,7 @@ export default function ResourcesPage() {
         <div className="bg-blue-50 rounded-xl p-8">
           <h3 className="text-xl font-bold mb-3 text-gray-900">Looking for something specific?</h3>
           <p className="text-gray-700 mb-4">
-            I'm always creating new resources based on what my clients need. If there's a topic you'd like to see covered, let me know!
+            I&apos;m always creating new resources based on what my clients need. If there&apos;s a topic you&apos;d like to see covered, let me know!
           </p>
           <a
             href="mailto:bhavana@counselling.com"

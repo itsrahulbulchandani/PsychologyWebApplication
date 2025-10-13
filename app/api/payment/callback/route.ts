@@ -3,6 +3,8 @@ import { phonePeService } from '@/lib/phonepe';
 import { googleCalendarService } from '@/lib/googleCalendar';
 import { getBooking } from '@/lib/bookingStore';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

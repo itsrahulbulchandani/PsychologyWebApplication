@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { phonePeService } from '@/lib/phonepe';
 import { storeBooking } from '@/lib/bookingStore';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();

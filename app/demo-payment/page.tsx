@@ -1,10 +1,10 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { CreditCard, CheckCircle, XCircle, Loader } from 'lucide-react';
 
-export default function DemoPaymentPage() {
+function DemoPaymentContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const transactionId = searchParams.get('txn');
@@ -95,6 +95,18 @@ export default function DemoPaymentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DemoPaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader className="animate-spin text-blue-600" size={40} />
+      </div>
+    }>
+      <DemoPaymentContent />
+    </Suspense>
   );
 }
 

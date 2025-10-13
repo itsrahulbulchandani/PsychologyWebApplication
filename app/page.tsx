@@ -4,7 +4,7 @@ import { Heart, Brain, Users, CheckCircle, Star, ArrowRight } from 'lucide-react
 export default function Home() {
   const misconceptions = [
     {
-      myth: "Therapy is only for 'crazy' people",
+      myth: "Therapy is only for &apos;crazy&apos; people",
       reality: "Therapy is for anyone wanting to improve their mental well-being, just like going to a gym for physical health."
     },
     {
@@ -31,13 +31,13 @@ export default function Home() {
     {
       name: "Rahul M.",
       role: "College Student",
-      content: "I was skeptical about therapy at first, but Bhavana created such a safe space. She helped me understand that seeking help isn't weakness—it's self-care.",
+      content: "I was skeptical about therapy at first, but Bhavana created such a safe space. She helped me understand that seeking help isn&apos;t weakness—it&apos;s self-care.",
       rating: 5
     },
     {
       name: "Anjali K.",
       role: "Entrepreneur",
-      content: "The sessions have been transformative. Bhavana's approach is both professional and deeply human. I finally feel understood and equipped to handle life's challenges.",
+      content: "The sessions have been transformative. Bhavana&apos;s approach is both professional and deeply human. I finally feel understood and equipped to handle life&apos;s challenges.",
       rating: 5
     }
   ];
@@ -54,7 +54,7 @@ export default function Home() {
               Made Affordable
             </h1>
             <p className="text-xl md:text-2xl text-gray-700 mb-8 max-w-3xl mx-auto">
-              Professional counselling that doesn't break the bank. Because everyone deserves access to quality mental health support.
+              Professional counselling that doesn&apos;t break the bank. Because everyone deserves access to quality mental health support.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -98,7 +98,7 @@ export default function Home() {
               </div>
               <h3 className="text-2xl font-bold mb-4 text-gray-900">Evidence-Based Approach</h3>
               <p className="text-gray-600 leading-relaxed">
-                Using proven therapeutic techniques tailored to your unique needs. Every person's journey is different, and so is my approach.
+                Using proven therapeutic techniques tailored to your unique needs. Every person&apos;s journey is different, and so is my approach.
               </p>
             </div>
 

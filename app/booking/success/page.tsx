@@ -35,7 +35,7 @@ export default function BookingSuccessPage() {
                     <h3 className="font-bold text-gray-900">Check Your Email</h3>
                   </div>
                   <p className="text-gray-700">
-                    You'll receive a confirmation email with all the details about your session.
+                    You&apos;ll receive a confirmation email with all the details about your session.
                   </p>
                 </div>
               </div>
