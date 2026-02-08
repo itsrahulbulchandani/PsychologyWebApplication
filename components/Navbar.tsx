@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 
@@ -9,29 +10,34 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'Home', href: '/' },
-    { name: 'Book Session', href: '/booking' },
     { name: 'About Me', href: '/about' },
-    { name: 'Resources', href: '/resources' },
+    { name: 'How I Can Support You', href: '/support' },
+    { name: 'Bookings', href: '/booking' },
+    { name: 'What to Expect', href: '/what-to-expect' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'FAQ', href: '/faq' },
   ];
 
   return (
-    <nav className="fixed w-full top-0 z-50 bg-white/80 backdrop-blur-md shadow-sm">
+    <nav className="fixed w-full top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Bhavana Bulchandani
+          <Link href="/" className="flex flex-col items-start">
+            <div className="flex items-center space-x-2">
+              <Image src="/logo.png" alt="Sthairyam" width={36} height={36} />
+              <span className="text-xl font-bold font-cinzel text-teal-800 tracking-wide">Sthairyam</span>
             </div>
+            <span className="text-xs text-teal-600/80 font-medium tracking-wide ml-10">by Bhavana Bulchandani</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
+          <div className="hidden lg:flex space-x-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+                className="text-gray-700 hover:text-teal-700 transition-colors duration-200 font-medium text-sm"
               >
                 {item.name}
               </Link>
@@ -41,7 +47,7 @@ export default function Navbar() {
           {/* Mobile menu button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100"
+            className="lg:hidden p-2 rounded-md text-gray-700 hover:text-teal-700 hover:bg-gray-100"
           >
             {isOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -50,13 +56,13 @@ export default function Navbar() {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="md:hidden bg-white border-t">
+        <div className="lg:hidden bg-white border-t">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className="block px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-100 font-medium"
+                className="block px-3 py-2 rounded-md text-gray-700 hover:text-teal-700 hover:bg-teal-50 font-medium"
                 onClick={() => setIsOpen(false)}
               >
                 {item.name}
