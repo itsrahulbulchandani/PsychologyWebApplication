@@ -35,6 +35,10 @@ export class PhonePeService {
                     this.merchantId === 'YOUR_MERCHANT_ID';
   }
 
+  get isDemoMode(): boolean {
+    return this.demoMode;
+  }
+
   /**
    * Generate a unique transaction ID
    */

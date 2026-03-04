@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface BookingCalendarProps {
@@ -12,13 +12,67 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(false);
 
-  // Generate time slots (9 AM to 6 PM)
+  // Generate time slots (9 AM to 11 PM)
   const timeSlots = [
     '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
     '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM',
-    '05:00 PM', '06:00 PM'
+    '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM',
+    '09:00 PM', '10:00 PM', '11:00 PM'
   ];
+
+  // Fetch booked slots for the current month
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      setLoading(true);
+      try {
+        const startOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+        const endOfMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+        
+        const response = await fetch(
+          `/api/availability?startDate=${startOfMonth.toISOString()}&endDate=${endOfMonth.toISOString()}`
+        );
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.events) {
+            const booked = new Set<string>();
+            
+            // For each event, mark all hourly slots that overlap with it
+            data.events.forEach((event: any) => {
+              if (event.start?.dateTime && event.end?.dateTime) {
+                const eventStart = new Date(event.start.dateTime);
+                const eventEnd = new Date(event.end.dateTime);
+                
+                // Check each hour from 9 AM to 11 PM
+                for (let hour = 9; hour < 23; hour++) {
+                  const slotStart = new Date(eventStart);
+                  slotStart.setHours(hour, 0, 0, 0);
+                  const slotEnd = new Date(slotStart);
+                  slotEnd.setMinutes(50); // 50-minute session
+                  
+                  // Check if this slot overlaps with the event
+                  if (slotStart < eventEnd && slotEnd > eventStart) {
+                    const slotKey = `${slotStart.getFullYear()}-${slotStart.getMonth()}-${slotStart.getDate()}-${hour}`;
+                    booked.add(slotKey);
+                  }
+                }
+              }
+            });
+            setBookedSlots(booked);
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching booked slots:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBookedSlots();
+  }, [currentMonth]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -68,6 +122,16 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date < today;
+  };
+
+  const isTimeSlotBooked = (date: Date, time: string) => {
+    const [timeStr, period] = time.split(' ');
+    let [hours] = timeStr.split(':').map(Number);
+    if (period === 'PM' && hours !== 12) hours += 12;
+    if (period === 'AM' && hours === 12) hours = 0;
+    
+    const slotKey = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}-${hours}`;
+    return bookedSlots.has(slotKey);
   };
 
   const isDateSelected = (day: number) => {
@@ -166,19 +230,25 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
             <h4 className="text-lg font-bold text-gray-900">Available Time Slots</h4>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {timeSlots.map((time) => (
-              <button
-                key={time}
-                onClick={() => handleTimeClick(time)}
-                className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-                  selectedTime === time
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {time}
-              </button>
-            ))}
+            {timeSlots.map((time) => {
+              const isBooked = selectedDate && isTimeSlotBooked(selectedDate, time);
+              return (
+                <button
+                  key={time}
+                  onClick={() => handleTimeClick(time)}
+                  disabled={isBooked}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                    selectedTime === time
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      : isBooked
+                      ? 'bg-red-100 text-red-400 cursor-not-allowed line-through'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {isBooked ? 'Booked' : time}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

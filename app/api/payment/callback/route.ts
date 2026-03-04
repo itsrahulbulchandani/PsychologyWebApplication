@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { phonePeService } from '@/lib/phonepe';
 import { googleCalendarService } from '@/lib/googleCalendar';
 import { getBooking } from '@/lib/bookingStore';
+import { sendTherapistBookingEmail, sendClientBookingEmail } from '@/lib/mailer';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     if (paymentStatus.success && paymentStatus.data?.state === 'COMPLETED') {
       // Payment successful, retrieve booking data
-      const bookingData = getBooking(merchantTransactionId || transactionId);
+      const bookingData = await getBooking(merchantTransactionId || transactionId);
 
       if (!bookingData) {
         console.error('Booking data not found for transaction:', transactionId);
@@ -32,6 +33,19 @@ export async function POST(request: NextRequest) {
       const startTime = new Date(bookingData.appointmentDate);
       const endTime = new Date(startTime.getTime() + 50 * 60000);
 
+      // Check for existing events at the same time
+      const existingEvents = await googleCalendarService.getEventsInRange(
+        new Date(startTime.getTime() - 60000).toISOString(), // 1 minute before
+        new Date(endTime.getTime() + 60000).toISOString()     // 1 minute after
+      );
+
+      if (existingEvents.success && existingEvents.events && existingEvents.events.length > 0) {
+        console.error('Time slot already booked in Google Calendar');
+        return NextResponse.redirect(
+          new URL('/booking/error?message=Time slot no longer available', request.url)
+        );
+      }
+
       // Create calendar event
       const calendarResult = await googleCalendarService.createEvent({
         summary: `Therapy Session - ${bookingData.name}`,
@@ -44,6 +58,38 @@ export async function POST(request: NextRequest) {
 
       if (calendarResult.success) {
         console.log('✅ Calendar event created successfully!');
+
+        const therapistEmail = process.env.THERAPIST_EMAIL;
+        if (therapistEmail) {
+          const emailResult = await sendTherapistBookingEmail({
+            therapistEmail,
+            clientName: bookingData.name,
+            clientEmail: bookingData.email,
+            packageName: bookingData.packageName,
+            appointmentIso: bookingData.appointmentDate,
+            amount: bookingData.amount,
+            transactionId: transactionId,
+            meetLink: calendarResult.meetLink,
+            eventLink: calendarResult.eventLink,
+          });
+
+          if (!emailResult.success) {
+            console.log('⚠️ Therapist email not sent:', emailResult.error);
+          }
+
+          await sendClientBookingEmail({
+            clientEmail: bookingData.email,
+            clientName: bookingData.name,
+            packageName: bookingData.packageName,
+            appointmentIso: bookingData.appointmentDate,
+            amount: bookingData.amount,
+            meetLink: calendarResult.meetLink,
+            therapistEmail,
+          });
+        } else {
+          console.log('⚠️ THERAPIST_EMAIL not set, skipping emails');
+        }
+
         return NextResponse.redirect(
           new URL(`/booking/success?eventId=${calendarResult.eventId}`, request.url)
         );
@@ -77,10 +123,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/booking/error', request.url));
   }
 
-  // For demo mode, accept status parameter
-  if (status === 'success') {
+  // For demo mode only, accept status parameter
+  if (status === 'success' && phonePeService.isDemoMode) {
     // Retrieve booking data
-    const bookingData = getBooking(transactionId);
+    const bookingData = await getBooking(transactionId);
 
     if (!bookingData) {
       return NextResponse.redirect(
@@ -107,6 +153,38 @@ export async function GET(request: NextRequest) {
 
       if (calendarResult.success) {
         console.log('✅ Calendar event created successfully!');
+
+        const therapistEmail = process.env.THERAPIST_EMAIL;
+        if (therapistEmail) {
+          const emailResult = await sendTherapistBookingEmail({
+            therapistEmail,
+            clientName: bookingData.name,
+            clientEmail: bookingData.email,
+            packageName: bookingData.packageName,
+            appointmentIso: bookingData.appointmentDate,
+            amount: bookingData.amount,
+            transactionId: transactionId,
+            meetLink: calendarResult.meetLink,
+            eventLink: calendarResult.eventLink,
+          });
+
+          if (!emailResult.success) {
+            console.log('⚠️ Therapist email not sent:', emailResult.error);
+          }
+
+          await sendClientBookingEmail({
+            clientEmail: bookingData.email,
+            clientName: bookingData.name,
+            packageName: bookingData.packageName,
+            appointmentIso: bookingData.appointmentDate,
+            amount: bookingData.amount,
+            meetLink: calendarResult.meetLink,
+            therapistEmail,
+          });
+        } else {
+          console.log('⚠️ THERAPIST_EMAIL not set, skipping emails');
+        }
+
         return NextResponse.redirect(
           new URL(`/booking/success?eventId=${calendarResult.eventId}`, request.url)
         );

@@ -12,12 +12,15 @@ export default function Home() {
             <Image
               src="/logo.png"
               alt="Sthairyam Logo"
-              width={120}
-              height={120}
-              className="mx-auto mb-8"
+              width={150}
+              height={150}
+              className="mx-auto mb-3"
               priority
             />
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold mb-10 text-gray-900 leading-tight">
+            {/* <p className="text-3xl md:text-5xl lg:text-6xl font-light tracking-[0.01em] text-teal-800 mb-3 mt-1">
+              स्थैर्यम्
+            </p> */}
+            <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-8 text-gray-900 ">
               Feel understood. Feel supported.
               <br />
               <span className="text-teal-700">Begin your healing journey.</span>

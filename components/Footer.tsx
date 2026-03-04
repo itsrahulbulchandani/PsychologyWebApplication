@@ -72,6 +72,9 @@ export default function Footer() {
             </ul>
             <h3 className="text-xl font-bold mb-4">Legal</h3>
             <ul className="space-y-2">
+              <li className="text-gray-400 hover:text-teal-400 transition-colors">
+                Registered under Udyam (MSME, Government of India) – Registration No: UDYAM-UP-29-0218942
+              </li>
               <li>
                 <Link href="/privacy-policy" className="text-gray-400 hover:text-teal-400 transition-colors">
                   Privacy Policy

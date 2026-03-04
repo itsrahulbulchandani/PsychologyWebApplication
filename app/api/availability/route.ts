@@ -16,16 +16,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = await googleCalendarService.getAvailableSlots(startDate, endDate);
+    const result = await googleCalendarService.getEventsInRange(startDate, endDate);
 
     if (result.success) {
       return NextResponse.json({
         success: true,
-        slots: result.slots,
+        events: result.events,
       });
     } else {
       return NextResponse.json(
-        { success: false, error: 'Failed to fetch availability' },
+        { success: false, error: result.error || 'Failed to fetch availability' },
         { status: 500 }
       );
     }

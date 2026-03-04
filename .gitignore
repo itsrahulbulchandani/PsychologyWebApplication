@@ -29,6 +29,10 @@ yarn-error.log*
 .env*.local
 .env
 
+# local utility scripts
+get-google-token.js
+test-google-token.js
+
 # vercel
 .vercel
 
