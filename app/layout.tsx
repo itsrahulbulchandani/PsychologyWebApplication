@@ -11,6 +11,10 @@ export const metadata: Metadata = {
   title: "Bhavana Bulchandani - Counselling Psychologist",
   description: "Affordable mental health counselling and therapy sessions. Breaking misconceptions about mental health, one session at a time.",
   keywords: ["counselling", "psychologist", "therapy", "mental health", "affordable therapy"],
+  icons: {
+    icon: "/logo.png",
+    apple: "/logo.png",
+  },
 };
 
 export default function RootLayout({
