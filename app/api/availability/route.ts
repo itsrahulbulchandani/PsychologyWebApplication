@@ -25,8 +25,7 @@ export async function GET(request: NextRequest) {
       });
     } else {
       return NextResponse.json(
-        // TEMP DEBUG: `debug` field surfaces the real Google error. Remove after diagnosing.
-        { success: false, error: result.error || 'Failed to fetch availability', debug: (result as any).debug },
+        { success: false, error: result.error || 'Failed to fetch availability' },
         { status: 500 }
       );
     }

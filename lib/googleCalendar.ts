@@ -373,7 +373,7 @@ export class GoogleCalendarService {
   /**
    * Fetch events within a date range to check availability
    */
-  async getEventsInRange(startDate: string, endDate: string): Promise<{ success: boolean; events?: any[]; error?: string; debug?: any }> {
+  async getEventsInRange(startDate: string, endDate: string): Promise<{ success: boolean; events?: any[]; error?: string }> {
     try {
       await withTimeout(this.ensureAccessToken(), 15_000, 'Google OAuth access token refresh');
 
@@ -396,27 +396,16 @@ export class GoogleCalendarService {
         success: true,
         events: response.data.items || [],
       };
-    } catch (error: any) {
+    } catch (error) {
       const extracted = extractGoogleApiError(error);
-      // TEMP DEBUG: capture everything we can to identify which call failed
-      const debug = {
-        name: error?.name,
-        constructor: error?.constructor?.name,
-        rawMessage: error?.message,
-        code: error?.code,
-        status: error?.status ?? error?.response?.status,
-        configUrl: error?.config?.url,
-        configMethod: error?.config?.method,
-        data: error?.response?.data,
-        keys: error ? Object.getOwnPropertyNames(error) : [],
-        stackHead: typeof error?.stack === 'string' ? error.stack.split('\n').slice(0, 4) : undefined,
-        cause: extractNodeFetchCause(error),
-      };
-      console.error('Error fetching calendar events:', debug);
+      console.error('Error fetching calendar events:', {
+        message: extracted.message,
+        status: extracted.status,
+        data: extracted.data,
+      });
       return {
         success: false,
         error: extracted.message || 'Failed to fetch calendar events',
-        debug,
       };
     }
   }

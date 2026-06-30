@@ -15,12 +15,11 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
   const [bookedSlots, setBookedSlots] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
-  // Generate time slots (9 AM to 11 PM)
+  // Generate time slots (11 AM to 8 PM)
   const timeSlots = [
-    '09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+    '11:00 AM', '12:00 PM',
     '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM',
-    '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM',
-    '09:00 PM', '10:00 PM', '11:00 PM'
+    '05:00 PM', '06:00 PM', '07:00 PM', '08:00 PM'
   ];
 
   // Fetch booked slots for the current month
@@ -46,8 +45,8 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
                 const eventStart = new Date(event.start.dateTime);
                 const eventEnd = new Date(event.end.dateTime);
                 
-                // Check each hour from 9 AM to 11 PM
-                for (let hour = 9; hour < 23; hour++) {
+                // Check each hour from 11 AM to 8 PM
+                for (let hour = 11; hour <= 20; hour++) {
                   const slotStart = new Date(eventStart);
                   slotStart.setHours(hour, 0, 0, 0);
                   const slotEnd = new Date(slotStart);
