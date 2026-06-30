@@ -177,31 +177,53 @@ export default function BookingPage() {
 
       appointmentDateTime.setHours(hours, minutes, 0, 0);
 
-      const response = await fetch('/api/payment/initiate', {
+      // --- PhonePe payment flow disabled (only free Discovery Call is bookable for now) ---
+      // const response = await fetch('/api/payment/initiate', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({
+      //     amount: selectedPackage.price,
+      //     mobileNumber: formData.mobile,
+      //     packageName: selectedPackage.name,
+      //     appointmentDate: appointmentDateTime.toISOString(),
+      //     email: formData.email,
+      //     name: formData.name,
+      //   }),
+      // });
+      // const data = await response.json();
+      // if (data.success && data.paymentUrl) {
+      //   window.location.href = data.paymentUrl;
+      // } else {
+      //   setError(data.error || 'Failed to initiate payment. Please try again.');
+      //   setIsProcessing(false);
+      // }
+      // --- end PhonePe flow ---
+
+      // Free booking: confirm directly into Google Calendar, no payment.
+      const response = await fetch('/api/booking/confirm', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: selectedPackage.price,
-          mobileNumber: formData.mobile,
           packageName: selectedPackage.name,
           appointmentDate: appointmentDateTime.toISOString(),
           email: formData.email,
           name: formData.name,
+          mobileNumber: formData.mobile,
         }),
       });
 
       const data = await response.json();
 
-      if (data.success && data.paymentUrl) {
-        window.location.href = data.paymentUrl;
+      if (data.success) {
+        window.location.href = data.eventId
+          ? `/booking/success?eventId=${data.eventId}`
+          : '/booking/success';
       } else {
-        setError(data.error || 'Failed to initiate payment. Please try again.');
+        setError(data.error || 'Failed to confirm booking. Please try again.');
         setIsProcessing(false);
       }
     } catch (error) {
-      console.error('Payment error:', error);
+      console.error('Booking error:', error);
       setError('An error occurred. Please try again.');
       setIsProcessing(false);
     }
@@ -252,19 +274,32 @@ export default function BookingPage() {
           Step 1: Choose Your Package
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {packages.map((pkg) => (
+          {packages.map((pkg) => {
+            // Only the free Discovery Call is bookable right now.
+            // Paid packages are shown for reference but locked until after the discovery call.
+            const isAvailable = pkg.id === 'discovery';
+            return (
             <div
               key={pkg.id}
-              onClick={() => { setSelectedPackage(pkg); setError(''); }}
-              className={`cursor-pointer relative bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+              onClick={() => { if (!isAvailable) return; setSelectedPackage(pkg); setError(''); }}
+              aria-disabled={!isAvailable}
+              className={`relative bg-white rounded-2xl shadow-lg transition-all duration-300 overflow-hidden ${
+                isAvailable ? 'cursor-pointer hover:shadow-xl' : 'cursor-not-allowed opacity-60'
+              } ${
                 pkg.popular ? 'ring-2 ring-teal-500' : ''
               } ${
                 selectedPackage?.id === pkg.id ? 'ring-2 ring-teal-600 transform scale-[1.02]' : ''
               }`}
             >
-              {pkg.popular && (
+              {pkg.popular && isAvailable && (
                 <div className="absolute top-0 right-0 bg-teal-700 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
                   POPULAR
+                </div>
+              )}
+
+              {!isAvailable && (
+                <div className="absolute top-0 left-0 right-0 bg-gray-700 text-white px-3 py-1.5 text-[11px] font-semibold text-center">
+                  Available after your discovery call
                 </div>
               )}
 
@@ -274,7 +309,7 @@ export default function BookingPage() {
                 </div>
               )}
 
-              <div className="p-6">
+              <div className={isAvailable ? 'p-6' : 'p-6 pt-10'}>
                 <h3 className="text-xl font-bold mb-2 text-gray-900">{pkg.name}</h3>
                 <div className="mb-4">
                   <div className="flex items-baseline">
@@ -303,7 +338,8 @@ export default function BookingPage() {
                 </ul>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

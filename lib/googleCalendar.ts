@@ -15,7 +15,14 @@ export interface CalendarEvent {
  function extractGoogleApiError(error: GoogleApiErrorLike): { message?: string; status?: number; data?: any } {
    const status = error?.code ?? error?.response?.status;
    const data = error?.response?.data;
-   const message = error?.message ?? data?.error?.message;
+   // Prefer Google's detailed reason (data.error.message / errors[].message) over the
+   // bare HTTP statusText ("Bad Request") that gaxios puts on error.message.
+   const detailed =
+     data?.error?.message ||
+     data?.error?.errors?.[0]?.message ||
+     data?.error_description ||
+     (typeof data?.error === 'string' ? data.error : undefined);
+   const message = detailed ?? error?.message;
    return { message, status, data };
  }
 
