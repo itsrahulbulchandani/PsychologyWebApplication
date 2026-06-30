@@ -13,7 +13,7 @@ export interface CalendarEvent {
  type GoogleApiErrorLike = any;
 
  function extractGoogleApiError(error: GoogleApiErrorLike): { message?: string; status?: number; data?: any } {
-   const status = error?.code ?? error?.response?.status;
+   const status = error?.status ?? error?.code ?? error?.response?.status;
    const data = error?.response?.data;
    // Prefer Google's detailed reason (data.error.message / errors[].message) over the
    // bare HTTP statusText ("Bad Request") that gaxios puts on error.message.
@@ -398,22 +398,25 @@ export class GoogleCalendarService {
       };
     } catch (error: any) {
       const extracted = extractGoogleApiError(error);
-      console.error('Error fetching calendar events:', {
-        message: extracted.message,
-        status: extracted.status,
-        data: extracted.data,
-      });
+      // TEMP DEBUG: capture everything we can to identify which call failed
+      const debug = {
+        name: error?.name,
+        constructor: error?.constructor?.name,
+        rawMessage: error?.message,
+        code: error?.code,
+        status: error?.status ?? error?.response?.status,
+        configUrl: error?.config?.url,
+        configMethod: error?.config?.method,
+        data: error?.response?.data,
+        keys: error ? Object.getOwnPropertyNames(error) : [],
+        stackHead: typeof error?.stack === 'string' ? error.stack.split('\n').slice(0, 4) : undefined,
+        cause: extractNodeFetchCause(error),
+      };
+      console.error('Error fetching calendar events:', debug);
       return {
         success: false,
         error: extracted.message || 'Failed to fetch calendar events',
-        // TEMP DEBUG: remove after diagnosing the production 500
-        debug: {
-          name: error?.name,
-          rawMessage: error?.message,
-          status: extracted.status,
-          data: extracted.data,
-          cause: extractNodeFetchCause(error),
-        },
+        debug,
       };
     }
   }
