@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Terms & Conditions — Sessions, Payments & Rescheduling',
+  description:
+    'Terms for counselling sessions: payment policy, 24-hour rescheduling notice, missed sessions, late arrivals, and client and therapist responsibilities.',
+  alternates: { canonical: '/terms' },
+};
+
 export default function TermsPage() {
   const sections = [
     {
-      number: "1",
       title: "Payment Policy",
       points: [
         "All sessions must be paid in full in advance before the session begins.",
@@ -9,7 +17,6 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "2",
       title: "Cancellation & Rescheduling",
       points: [
         "Sessions can be rescheduled if you inform the therapist at least 24 hours in advance.",
@@ -17,14 +24,12 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "3",
       title: "Emergency Exceptions",
       points: [
-        "In cases of genuine emergencies (such as serious illness or critical family situations), one reschedule may be offered as a courtesy, at the therapist\u2019s discretion, even if prior notice could not be given.",
+        "In cases of genuine emergencies (such as serious illness or critical family situations), one reschedule may be offered as a courtesy, at the therapist’s discretion, even if prior notice could not be given.",
       ]
     },
     {
-      number: "4",
       title: "Missed Sessions / No-Shows",
       points: [
         "If you miss a session without prior notice and without an emergency reason, the session will be considered completed.",
@@ -32,7 +37,6 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "5",
       title: "Late Arrival",
       points: [
         "The therapist will wait up to 10 minutes from the scheduled session time.",
@@ -41,7 +45,6 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "6",
       title: "Technical & Internet Issues",
       points: [
         "In case of internet or technical difficulties, both the client and therapist will attempt to reconnect for up to 10 minutes.",
@@ -49,15 +52,13 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "7",
-      title: "Therapist\u2019s Rights",
+      title: "Therapist’s Rights",
       points: [
         "The therapist reserves the right to reschedule sessions in case of personal emergencies or unforeseen circumstances.",
         "The therapist reserves the right to refer the client to another mental health professional if continuing therapy is not clinically appropriate or beneficial, with prior communication.",
       ]
     },
     {
-      number: "8",
       title: "Client Responsibilities",
       points: [
         "The client agrees to attend sessions on time and in a private, quiet space.",
@@ -66,7 +67,6 @@ export default function TermsPage() {
       ]
     },
     {
-      number: "9",
       title: "Acceptance of Terms",
       points: [
         "By booking a session, you confirm that you have read, understood, and agreed to these Terms & Conditions, along with the Informed Consent policy.",
@@ -75,44 +75,41 @@ export default function TermsPage() {
   ];
 
   return (
-    <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto text-center mb-16 animate-fadeInUp">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-          Terms &amp; <span className="text-teal-700">Conditions</span>
+    <div className="px-5 sm:px-8">
+      {/* ——— Header ——— */}
+      <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
+        <p className="eyebrow mb-6">Legal</p>
+        <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
+          Terms &amp; <em className="text-pine">conditions</em>
         </h1>
-        <p className="text-gray-500">Last updated: January 26, 2026</p>
-        <p className="text-gray-600 mt-4 max-w-2xl mx-auto">
-          These terms are designed to ensure clarity, respect for time, and a smooth therapeutic process for both the client and the therapist.
+        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
+          These terms are designed to ensure clarity, respect for time, and a smooth therapeutic process
+          for both the client and the therapist.
         </p>
-      </div>
+        <p className="mt-4 text-sm text-ink/50">Last updated: January 26, 2026</p>
+      </section>
 
-      <div className="max-w-4xl mx-auto">
-        <div className="space-y-6">
-          {sections.map((section, index) => (
-            <div key={index} className="bg-white rounded-xl shadow-md p-6 md:p-8">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-teal-100 rounded-full flex items-center justify-center text-teal-700 font-bold">
-                    {section.number}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-gray-900 mb-3">{section.title}</h2>
-                  <ul className="space-y-2">
-                    {section.points.map((point, i) => (
-                      <li key={i} className="flex items-start space-x-3">
-                        <span className="text-teal-600 mt-1 flex-shrink-0">&#8226;</span>
-                        <span className="text-gray-700 leading-relaxed">{point}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ——— Sections ——— */}
+      <section className="max-w-4xl mx-auto lg:mx-0 pb-8">
+        {sections.map((section, index) => (
+          <div key={index} className="border-t border-ink/10 last:border-b py-8 grid grid-cols-1 sm:grid-cols-12 gap-4">
+            <span className="sm:col-span-1 font-display text-sm text-clay pt-1">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h2 className="sm:col-span-4 font-display text-xl sm:text-2xl text-ink leading-snug">
+              {section.title}
+            </h2>
+            <ul className="sm:col-span-7 space-y-3">
+              {section.points.map((point, i) => (
+                <li key={i} className="text-ink-soft text-[15px] leading-relaxed flex gap-3">
+                  <span className="text-pine/50 shrink-0 mt-px">—</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

@@ -1,141 +1,131 @@
-import { Phone, Users, Clock, BookOpen, Monitor, Lock, Sparkles, ArrowRight } from 'lucide-react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'What to Expect — Your First Therapy Session & Beyond',
+  description:
+    'How online therapy works here: a free 15–20 minute discovery call, getting-to-know-you first sessions, 60-minute weekly sessions, homework between sessions, and strict confidentiality.',
+  alternates: { canonical: '/what-to-expect' },
+};
 
 export default function WhatToExpectPage() {
   const steps = [
     {
-      icon: Phone,
-      number: "1",
-      title: "Discovery Call",
+      title: 'Discovery Call',
       points: [
-        "Before we begin therapy, I offer a brief 15\u201320 minute free discovery call.",
-        "This is a chance for you to share your concerns and ask questions.",
-        "It helps us see if my approach is a good fit for your needs.",
-        "There\u2019s no obligation to start therapy after this call.",
-      ]
+        'Before we begin therapy, I offer a brief 15–20 minute free discovery call.',
+        'This is a chance for you to share your concerns and ask questions.',
+        'It helps us see if my approach is a good fit for your needs.',
+        'There’s no obligation to start therapy after this call.',
+      ],
     },
     {
-      icon: Users,
-      number: "2",
-      title: "Initial Sessions",
+      title: 'Initial Sessions',
       points: [
-        "Your first two sessions at least are about getting to know you, creating a safe space for you and identifying your goals.",
-        "We\u2019ll discuss what brought you to therapy, your experiences, and what you hope to achieve.",
-        "These sessions help you feel comfortable and understood.",
-        "Together, we create a plan that works for you.",
-      ]
+        'Your first two sessions at least are about getting to know you, creating a safe space for you and identifying your goals.',
+        'We’ll discuss what brought you to therapy, your experiences, and what you hope to achieve.',
+        'These sessions help you feel comfortable and understood.',
+        'Together, we create a plan that works for you.',
+      ],
     },
     {
-      icon: Clock,
-      number: "3",
-      title: "Session Length & Frequency",
+      title: 'Session Length & Frequency',
       points: [
-        "Each session lasts up to 60 minutes, with the option to extend by 15\u201330 minutes for emergencies so that you leave each session feeling composed and supported.",
-        "Frequency of sessions depends on your goals and needs, usually once a week to start.",
-      ]
+        'Each session lasts up to 60 minutes, with the option to extend by 15–30 minutes for emergencies so that you leave each session feeling composed and supported.',
+        'Frequency of sessions depends on your goals and needs, usually once a week to start.',
+      ],
     },
     {
-      icon: BookOpen,
-      number: "4",
-      title: "Homework",
+      title: 'Homework',
       points: [
-        "After each session, you\u2019ll be given some homework or exercises to do on your own. These require you to think deeper, learn new ideas or practice desired behaviours.",
-        "In the gap between two sessions, you can reach out to me on chat and I will guide you in case you are stuck with your homework, the best I can. I don\u2019t guarantee immediate or 100% replies but I\u2019ll try my best to be there for you, while maintaining my own work life balance :)",
-      ]
+        'After each session, you’ll be given some homework or exercises to do on your own. These require you to think deeper, learn new ideas or practice desired behaviours.',
+        'In the gap between two sessions, you can reach out to me on chat and I will guide you in case you are stuck with your homework, the best I can. I don’t guarantee immediate or 100% replies but I’ll try my best to be there for you, while maintaining my own work life balance :)',
+      ],
     },
     {
-      icon: Monitor,
-      number: "5",
-      title: "Online Sessions",
+      title: 'Online Sessions',
       points: [
-        "All therapy sessions are conducted online, so you can attend from the comfort of your home.",
-        "Online therapy provides the same level of care, support, and confidentiality as in-person sessions.",
-        "You\u2019ll receive a secure link to join each session at the scheduled time.",
-      ]
+        'All therapy sessions are conducted online, so you can attend from the comfort of your home.',
+        'Online therapy provides the same level of care, support, and confidentiality as in-person sessions.',
+        'You’ll receive a secure link to join each session at the scheduled time.',
+      ],
     },
     {
-      icon: Lock,
-      number: "6",
-      title: "Confidentiality",
+      title: 'Confidentiality',
       points: [
-        "Your privacy is a top priority.",
-        "Everything shared in sessions is strictly confidential.",
-        "My session notes are kept securely and are never shared anywhere, except in cases required by law to ensure safety.",
-      ]
+        'Your privacy is a top priority.',
+        'Everything shared in sessions is strictly confidential.',
+        'My session notes are kept securely and are never shared anywhere, except in cases required by law to ensure safety.',
+      ],
     },
     {
-      icon: Sparkles,
-      number: "7",
-      title: "Nature of Therapy",
+      title: 'Nature of Therapy',
       points: [
-        "Therapy is a collaborative process. You set the pace and goals.",
-        "Sessions provide a safe space to explore your thoughts, emotions, and challenges.",
-        "Over time, you\u2019ll develop tools and insights to cope, grow, and feel more in control.",
-      ]
+        'Therapy is a collaborative process. You set the pace and goals.',
+        'Sessions provide a safe space to explore your thoughts, emotions, and challenges.',
+        'Over time, you’ll develop tools and insights to cope, grow, and feel more in control.',
+      ],
     },
   ];
 
   return (
-    <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto text-center mb-16 animate-fadeInUp">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-          What to <span className="text-teal-700">Expect</span>
+    <div className="px-5 sm:px-8">
+      {/* ——— Header ——— */}
+      <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
+        <p className="eyebrow mb-6">The process</p>
+        <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
+          What to <em className="text-pine">expect</em>
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Starting therapy can feel unfamiliar, and it&apos;s normal to have questions. This page explains what to expect and how we work together, so you can feel confident and supported from the very first session.
+        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
+          Starting therapy can feel unfamiliar, and it&apos;s normal to have questions. This page
+          explains how we work together, so you can feel confident and supported from the very first
+          session.
         </p>
-      </div>
+      </section>
 
-      {/* Steps */}
-      <div className="max-w-4xl mx-auto mb-20">
-        <div className="space-y-8">
-          {steps.map((step, index) => {
-            const IconComponent = step.icon;
-            return (
-              <div key={index} className="bg-white rounded-2xl shadow-md p-8 hover:shadow-lg transition-shadow duration-300">
-                <div className="flex items-start space-x-5">
-                  <div className="flex-shrink-0">
-                    <div className="w-14 h-14 bg-teal-700 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                      {step.number}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold mb-4 text-gray-900">{step.title}</h3>
-                    <ul className="space-y-3">
-                      {step.points.map((point, i) => (
-                        <li key={i} className="flex items-start space-x-3">
-                          <span className="text-teal-600 mt-1 flex-shrink-0">&#8226;</span>
-                          <span className="text-gray-700 leading-relaxed">{point}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+      {/* ——— Timeline ——— */}
+      <section className="max-w-6xl mx-auto pb-20">
+        <div className="relative border-l border-ink/15 ml-4 sm:ml-8">
+            {steps.map((step, index) => (
+              <div key={index} className="relative pl-10 sm:pl-14 pb-14 last:pb-0">
+                <span className="absolute -left-[13px] top-1 w-[25px] h-[25px] rounded-full bg-cream border border-pine flex items-center justify-center">
+                  <span className="w-2 h-2 rounded-full bg-pine" />
+                </span>
+                <p className="font-display text-sm text-clay mb-2">
+                  {String(index + 1).padStart(2, '0')}
+                </p>
+                <h2 className="font-display text-2xl sm:text-3xl text-ink mb-5">{step.title}</h2>
+                <ul className="space-y-3 max-w-xl">
+                  {step.points.map((point, i) => (
+                    <li key={i} className="text-ink-soft text-[15px] leading-relaxed flex gap-3">
+                      <span className="text-pine/50 shrink-0 mt-px">—</span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            );
-          })}
+            ))}
         </div>
-      </div>
+      </section>
 
-      {/* Next Steps */}
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-teal-50 rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-gray-900">Next Steps</h2>
-          <p className="text-lg text-gray-700 mb-4">
-            If you feel ready after the discovery call, we schedule your first session. You&apos;ll receive guidance on preparing for your session and what to expect.
-          </p>
-          <div className="mt-8">
-            <Link
-              href="/booking"
-              className="inline-flex items-center px-8 py-4 bg-teal-700 text-white rounded-full font-semibold hover:bg-teal-800 hover:shadow-lg transform hover:-translate-y-1 transition-all duration-200"
-            >
-              Book Your Discovery Call
-              <ArrowRight className="ml-2" size={20} />
+      {/* ——— Next Steps ——— */}
+      <section className="max-w-6xl mx-auto">
+        <div className="bg-sage-pale border border-ink/10 rounded-2xl px-6 py-14 sm:px-16 sm:py-16">
+          <div className="max-w-2xl">
+            <p className="eyebrow mb-6">Next steps</p>
+            <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
+              If you feel ready after the discovery call, we schedule your first session — and
+              you&apos;ll receive guidance on how to prepare.{' '}
+              <em className="text-pine">No pressure, no rush.</em>
+            </p>
+            <Link href="/booking" className="btn-primary mt-10">
+              Book your discovery call
+              <ArrowRight size={16} />
             </Link>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

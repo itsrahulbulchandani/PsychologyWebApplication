@@ -1,3 +1,13 @@
+import type { Metadata } from 'next';
+import { ArrowUpRight } from 'lucide-react';
+
+export const metadata: Metadata = {
+  title: 'Blog — Mental Health Insights & Resources',
+  description:
+    'Thoughts, insights and practical resources on mental health, emotional wellbeing and self-growth from counselling psychologist Bhavana Bulchandani.',
+  alternates: { canonical: '/blog' },
+};
+
 type WordPressPost = {
   id: number;
   title: { rendered: string };
@@ -7,7 +17,7 @@ type WordPressPost = {
 };
 
 const sanitizeHtml = (html: string) =>
-  html.replace(/&nbsp;|&#160;/g, ' ').trim();
+  html.replace(/&nbsp;|&#160;/g, ' ').replace(/<[^>]*>/g, '').trim();
 
 async function getPosts(): Promise<WordPressPost[]> {
   const response = await fetch(
@@ -26,57 +36,58 @@ export default async function BlogPage() {
   const posts = await getPosts();
 
   return (
-    <div className="min-h-screen py-20 px-4 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto text-center mb-16 animate-fadeInUp">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
-          <span className="text-teal-700">Blog</span>
+    <div className="px-5 sm:px-8">
+      {/* ——— Header ——— */}
+      <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
+        <p className="eyebrow mb-6">Writing</p>
+        <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
+          The <em className="text-pine">blog</em>
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
           Thoughts, insights, and resources on mental health and well-being.
         </p>
-      </div>
+      </section>
 
-      <div className="max-w-5xl mx-auto">
+      {/* ——— Posts ——— */}
+      <section className="max-w-6xl mx-auto pb-8">
         {posts.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-lg p-10 text-center text-gray-600">
+          <div className="border-t border-b border-ink/10 py-16 text-center text-ink-soft">
             Unable to load posts right now. Please check back soon.
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div>
             {posts.map((post) => (
-              <article
+              <a
                 key={post.id}
-                className="bg-white rounded-2xl shadow-md p-6 hover:shadow-lg transition-shadow"
+                href={post.link}
+                target="_blank"
+                rel="noreferrer"
+                className="group border-t border-ink/10 last:border-b py-8 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-8 items-baseline"
               >
-                <p className="text-sm text-teal-700 mb-2">
+                <p className="md:col-span-2 text-[11px] uppercase tracking-[0.18em] text-clay font-semibold">
                   {new Date(post.date).toLocaleDateString('en-IN', {
                     year: 'numeric',
                     month: 'short',
                     day: 'numeric',
                   })}
                 </p>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
+                <h2 className="md:col-span-4 font-display text-xl sm:text-2xl text-ink group-hover:text-pine transition-colors leading-snug">
                   {sanitizeHtml(post.title.rendered)}
                 </h2>
-                <div
-                  className="text-sm text-gray-600 leading-relaxed mb-5 line-clamp-4"
-                  dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.excerpt.rendered) }}
-                />
-                <a
-                  href={post.link}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-teal-700 font-semibold inline-flex items-center gap-2"
-                >
-                  Read on PsychFuel
-                  <span aria-hidden="true">→</span>
-                </a>
-              </article>
+                <p className="md:col-span-5 text-ink-soft text-[15px] leading-relaxed line-clamp-3">
+                  {sanitizeHtml(post.excerpt.rendered)}
+                </p>
+                <span className="md:col-span-1 flex md:justify-end">
+                  <ArrowUpRight size={20} className="text-ink/30 group-hover:text-pine transition-colors" />
+                </span>
+              </a>
             ))}
           </div>
         )}
-      </div>
+        {posts.length > 0 && (
+          <p className="text-ink-soft text-sm mt-6">Posts open on PsychFuel, my writing home.</p>
+        )}
+      </section>
     </div>
   );
 }

@@ -1,99 +1,101 @@
 import Link from 'next/link';
-import { Mail, MapPin, Leaf } from 'lucide-react';
+import { siteConfig } from '@/lib/site';
 
 export default function Footer() {
+  const quickLinks = [
+    { name: 'About Me', href: '/about' },
+    { name: 'How I Can Help', href: '/support' },
+    { name: 'Book a Session', href: '/booking' },
+    { name: 'What to Expect', href: '/what-to-expect' },
+    { name: 'Resources', href: '/resources' },
+    { name: 'Blog', href: '/blog' },
+    { name: 'FAQ', href: '/faq' },
+  ];
+
   return (
-    <footer className="bg-gray-900 text-white mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-pine-dark text-cream mt-28">
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
           {/* About Section */}
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Leaf className="text-teal-400" size={24} />
-              <h3 className="text-xl font-bold text-teal-400">
-                Sthairyam
-              </h3>
-            </div>
-            <p className="text-sm text-gray-400 mb-2">Bhavana Bulchandani</p>
-            <p className="text-gray-400">
+          <div className="md:col-span-4">
+            <p className="font-cinzel text-2xl tracking-wide mb-1">Sthairyam</p>
+            <p className="text-cream/60 text-sm mb-5">by Bhavana Bulchandani</p>
+            <p className="text-cream/70 text-sm leading-relaxed max-w-xs">
               Counselling Psychologist creating a safe, supportive space for your healing journey.
+              Online sessions across India.
+            </p>
+            <p className="text-cream/70 text-sm mt-5">
+              <a href={`mailto:${siteConfig.email}`} className="underline underline-offset-4 decoration-cream/30 hover:decoration-cream">
+                {siteConfig.email}
+              </a>
             </p>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Quick Links</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link href="/about" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  About Me
-                </Link>
-              </li>
-              <li>
-                <Link href="/support" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  How I Can Support You
-                </Link>
-              </li>
-              <li>
-                <Link href="/booking" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  Bookings
-                </Link>
-              </li>
-              <li>
-                <Link href="/what-to-expect" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  What to Expect
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-gray-400 hover:text-teal-400 transition-colors">
-                  FAQ
-                </Link>
-              </li>
+          <div className="md:col-span-2">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-cream/50 font-semibold mb-5">Explore</p>
+            <ul className="space-y-2.5 text-sm">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-cream/75 hover:text-cream transition-colors">
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Contact & Legal */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">Contact</h3>
-            <ul className="space-y-3 text-gray-400 mb-6">
-              <li className="flex items-center space-x-2">
-                <Mail size={18} />
-                <span>bhavana@counselling.com</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <MapPin size={18} />
-                <span>Available Online</span>
-              </li>
-            </ul>
-            <h3 className="text-xl font-bold mb-4">Legal</h3>
-            <ul className="space-y-2">
-              <li className="text-gray-400 hover:text-teal-400 transition-colors">
-                Registered under Udyam (MSME, Government of India) – Registration No: UDYAM-UP-29-0218942
-              </li>
+          {/* Legal */}
+          <div className="md:col-span-3">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-cream/50 font-semibold mb-5">Legal</p>
+            <ul className="space-y-2.5 text-sm">
               <li>
-                <Link href="/privacy-policy" className="text-gray-400 hover:text-teal-400 transition-colors">
+                <Link href="/privacy-policy" className="text-cream/75 hover:text-cream transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/terms" className="text-gray-400 hover:text-teal-400 transition-colors">
+                <Link href="/terms" className="text-cream/75 hover:text-cream transition-colors">
                   Terms &amp; Conditions
                 </Link>
+              </li>
+            </ul>
+            <p className="text-cream/40 text-xs leading-relaxed mt-6 max-w-[26ch]">
+              Registered under Udyam (MSME, Government of India) &ndash; Registration No: UDYAM-UP-29-0218942
+            </p>
+          </div>
+
+          {/* Crisis Support */}
+          <div className="md:col-span-3">
+            <p className="text-[11px] uppercase tracking-[0.22em] text-cream/50 font-semibold mb-5">In Crisis? Get Help Now</p>
+            <p className="text-cream/70 text-sm leading-relaxed mb-5">
+              This is not a crisis helpline. If you or someone you know is in immediate danger, please
+              reach out to a 24x7 helpline:
+            </p>
+            <ul className="space-y-3 text-sm text-cream/75">
+              <li>
+                <span className="block text-cream font-medium">Tele-MANAS (Govt. of India)</span>
+                <a href="tel:14416" className="hover:text-cream">14416</a>
+                {' or '}
+                <a href="tel:18008914416" className="hover:text-cream">1800-891-4416</a>
+              </li>
+              <li>
+                <span className="block text-cream font-medium">KIRAN Helpline</span>
+                <a href="tel:18005990019" className="hover:text-cream">1800-599-0019</a>
+              </li>
+              <li>
+                <span className="block text-cream font-medium">Emergency</span>
+                <a href="tel:112" className="hover:text-cream">112</a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-800 text-center text-gray-400">
+        <div className="mt-14 pt-8 border-t border-cream/15 flex flex-col sm:flex-row justify-between gap-2 text-cream/50 text-xs tracking-wide">
           <p>&copy; {new Date().getFullYear()} Sthairyam &mdash; Bhavana Bulchandani. All rights reserved.</p>
+          <p>स्थैर्यम् &mdash; steadiness</p>
         </div>
       </div>
     </footer>
   );
 }
-

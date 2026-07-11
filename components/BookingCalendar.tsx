@@ -160,12 +160,12 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
         key={day}
         onClick={() => handleDateClick(day)}
         disabled={isDateDisabled(day)}
-        className={`h-12 rounded-lg flex items-center justify-center font-medium transition-all duration-200 ${
+        className={`h-12 rounded-full flex items-center justify-center text-sm transition-colors duration-200 ${
           isDateDisabled(day)
-            ? 'text-gray-300 cursor-not-allowed'
+            ? 'text-ink/20 cursor-not-allowed'
             : isDateSelected(day)
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-            : 'hover:bg-blue-50 text-gray-700'
+            ? 'bg-pine text-cream'
+            : 'hover:bg-sage-pale text-ink'
         }`}
       >
         {day}
@@ -175,41 +175,42 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
 
   if (!selectedPackage) {
     return (
-      <div className="bg-blue-50 rounded-xl p-8 text-center">
-        <Calendar className="mx-auto mb-4 text-blue-600" size={48} />
-        <p className="text-gray-700">Please select a package first to view available dates</p>
+      <div className="bg-sage-pale border border-ink/10 rounded-xl p-8 text-center">
+        <Calendar className="mx-auto mb-4 text-pine" size={40} />
+        <p className="text-ink-soft">Please select a package first to view available dates</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
-      <h3 className="text-2xl font-bold mb-6 text-gray-900">Select Date & Time</h3>
+    <div className="bg-white border border-ink/15 rounded-xl p-6 sm:p-8">
       
       {/* Calendar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
           <button
             onClick={previousMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-full hover:bg-sage-pale transition-colors text-ink"
+            aria-label="Previous month"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={22} />
           </button>
-          <h4 className="text-xl font-bold text-gray-900">
+          <h4 className="font-display text-xl text-ink">
             {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
           </h4>
           <button
             onClick={nextMonth}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-full hover:bg-sage-pale transition-colors text-ink"
+            aria-label="Next month"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={22} />
           </button>
         </div>
 
         {/* Day names */}
         <div className="grid grid-cols-7 gap-2 mb-2">
           {dayNames.map((day) => (
-            <div key={day} className="text-center text-sm font-semibold text-gray-600">
+            <div key={day} className="text-center text-[11px] uppercase tracking-[0.12em] font-semibold text-ink-soft">
               {day}
             </div>
           ))}
@@ -224,9 +225,9 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
       {/* Time slots */}
       {selectedDate && (
         <div>
-          <div className="flex items-center mb-4">
-            <Clock className="text-blue-600 mr-2" size={20} />
-            <h4 className="text-lg font-bold text-gray-900">Available Time Slots</h4>
+          <div className="flex items-center mb-4 border-t border-ink/10 pt-6">
+            <Clock className="text-pine mr-2" size={18} />
+            <h4 className="font-display text-lg text-ink">Available time slots</h4>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {timeSlots.map((time) => {
@@ -236,12 +237,12 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
                   key={time}
                   onClick={() => handleTimeClick(time)}
                   disabled={isBooked}
-                  className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+                  className={`px-4 py-3 rounded-full text-sm transition-colors duration-200 border ${
                     selectedTime === time
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
+                      ? 'bg-pine text-cream border-pine'
                       : isBooked
-                      ? 'bg-red-100 text-red-400 cursor-not-allowed line-through'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? 'bg-cream-deep text-ink/30 border-ink/10 cursor-not-allowed line-through'
+                      : 'bg-white text-ink border-ink/15 hover:border-pine/60'
                   }`}
                 >
                   {isBooked ? 'Booked' : time}
@@ -253,13 +254,13 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
       )}
 
       {selectedDate && selectedTime && (
-        <div className="mt-6 p-4 bg-green-50 rounded-lg border-2 border-green-200">
-          <p className="text-green-800 font-semibold">
-            ✓ Selected: {selectedDate.toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+        <div className="mt-6 p-4 bg-sage-pale rounded-lg border border-pine/30">
+          <p className="text-pine-dark text-sm font-medium">
+            ✓ Selected: {selectedDate.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })} at {selectedTime}
           </p>
         </div>
