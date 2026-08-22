@@ -3,6 +3,7 @@ import { Inter, Cinzel, Fraunces } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { siteConfig } from "@/lib/site";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -129,6 +130,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Analytics only loads where a measurement ID is configured (i.e. not locally)
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
+
   return (
     <html lang="en">
       <body className={`${inter.className} ${inter.variable} ${cinzel.variable} ${fraunces.variable} font-sans`}>
@@ -141,6 +145,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>
   );

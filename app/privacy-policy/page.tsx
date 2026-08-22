@@ -23,6 +23,11 @@ export default function PrivacyPolicyPage() {
       description:
         'Any notes or records are stored securely and maintained in line with professional and legal standards.',
     },
+    {
+      title: 'Website Analytics',
+      description:
+        'This website uses Google Analytics to count visits and see which pages are read. It records pages viewed, approximate location, and device type. It never receives anything you share in a session, and nothing you enter on the booking form is sent to it.',
+    },
   ];
 
   const exceptions = [

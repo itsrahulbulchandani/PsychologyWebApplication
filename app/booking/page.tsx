@@ -279,11 +279,9 @@ export default function BookingPage() {
       const data = await response.json();
 
       if (data.success) {
-        const params = new URLSearchParams();
-        if (data.eventId) params.set('eventId', data.eventId);
-        if (data.bookingId) params.set('bookingId', data.bookingId);
-        const query = params.toString();
-        window.location.href = query ? `/booking/success?${query}` : '/booking/success';
+        window.location.href = data.bookingId
+          ? `/booking/success?bookingId=${encodeURIComponent(data.bookingId)}`
+          : '/booking/success';
       } else {
         setError(data.error || 'Failed to confirm booking. Please try again.');
         setIsProcessing(false);
