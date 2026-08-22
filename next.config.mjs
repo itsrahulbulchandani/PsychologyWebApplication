@@ -17,11 +17,12 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+              // googletagmanager.com serves gtag.js for Google Analytics
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob:",
-              "connect-src 'self'",
+              "img-src 'self' data: blob: https://*.google-analytics.com https://*.googletagmanager.com",
+              "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
               "frame-ancestors 'none'",
             ].join('; '),
           },
