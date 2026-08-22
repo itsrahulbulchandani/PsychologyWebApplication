@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'What to Expect — Your First Therapy Session & Beyond',
+  title: 'What to Expect: Your First Therapy Session & Beyond',
   description:
     'How online therapy works here: a free 15–20 minute discovery call, getting-to-know-you first sessions, 60-minute weekly sessions, homework between sessions, and strict confidentiality.',
   alternates: { canonical: '/what-to-expect' },
@@ -115,7 +115,7 @@ export default function WhatToExpectPage() {
           <div className="max-w-2xl">
             <p className="eyebrow mb-6">Next steps</p>
             <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
-              If you feel ready after the discovery call, we schedule your first session — and
+              If you feel ready after the discovery call, we schedule your first session, and
               you&apos;ll receive guidance on how to prepare.{' '}
               <em className="text-pine">No pressure, no rush.</em>
             </p>

@@ -5,7 +5,7 @@ import FAQList from '@/components/FAQList';
 import { faqs } from '@/lib/faqs';
 
 export const metadata: Metadata = {
-  title: 'FAQ — Common Questions About Therapy',
+  title: 'FAQ: Common Questions About Therapy',
   description:
     'Answers to common questions about online counselling: how many sessions you need, confidentiality, what happens in the first session, and how to know if therapy is helping.',
   alternates: { canonical: '/faq' },

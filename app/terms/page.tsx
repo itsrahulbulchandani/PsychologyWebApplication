@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Terms & Conditions — Sessions, Payments & Rescheduling',
+  title: 'Terms & Conditions: Sessions, Payments & Rescheduling',
   description:
     'Terms for counselling sessions: payment policy, 24-hour rescheduling notice, missed sessions, late arrivals, and client and therapist responsibilities.',
   alternates: { canonical: '/terms' },

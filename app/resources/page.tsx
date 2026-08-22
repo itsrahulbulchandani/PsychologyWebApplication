@@ -4,9 +4,9 @@ import { ArrowUpRight } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: 'Resources — Guides & Tools for Mental Wellbeing',
+  title: 'Resources: Guides & Tools for Mental Wellbeing',
   description:
-    'Practical guides and worksheets on anxiety, mindfulness, sleep and stress from counselling psychologist Bhavana Bulchandani — plus articles on the blog.',
+    'Practical guides and worksheets on anxiety, mindfulness, sleep and stress from counselling psychologist Bhavana Bulchandani, plus articles on the blog.',
   alternates: { canonical: '/resources' },
 };
 
@@ -43,7 +43,7 @@ export default function ResourcesPage() {
           Resources for your <em className="text-pine">wellbeing</em>
         </h1>
         <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
-          Tools, guides, and materials to support your mental health journey — between sessions or
+          Tools, guides, and materials to support your mental health journey, between sessions or
           before you&apos;ve even had one.
         </p>
       </section>
@@ -53,7 +53,7 @@ export default function ResourcesPage() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-12">
           <h2 className="font-display text-2xl sm:text-3xl text-ink">Free guides &amp; worksheets</h2>
           <p className="text-ink-soft text-sm max-w-xs sm:text-right">
-            Email me and I&apos;ll send any of these to you — no charge, no strings attached.
+            Email me and I&apos;ll send any of these to you. No charge, no strings attached.
           </p>
         </div>
 

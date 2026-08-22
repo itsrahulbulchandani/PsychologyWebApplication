@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'About Bhavana — Counselling Psychologist',
+  title: 'About Bhavana: Counselling Psychologist',
   description:
     'Meet Bhavana Bulchandani, counselling psychologist (MA Psychology, BHU). A client-centered, compassionate approach using CBT, mindfulness and emotion-focused work. Free discovery call available.',
   alternates: { canonical: '/about' },
@@ -37,13 +38,15 @@ export default function AboutPage() {
     },
   ];
 
+  // Most recent first
   const qualifications = [
-    { degree: 'BA in Applied Psychology', institution: 'Amity University', year: '2017' },
-    { degree: 'MA in Psychology (Counseling Specialisation)', institution: 'Banaras Hindu University', year: '2019' },
     { degree: 'Postgraduate Diploma in Guidance & Counseling', institution: 'Jamia Millia Islamia', year: '2023' },
+    { degree: 'MA in Psychology (Counseling Specialisation)', institution: 'Banaras Hindu University', year: '2019' },
+    { degree: 'BA in Applied Psychology', institution: 'Amity University', year: '2017' },
   ];
 
   const memberships = [
+    'Member, American Psychological Association (Membership No. C2605770239)',
     'Member, Counselors Council of India',
     'Registered Psychologist, National Council for Allied & Healthcare Professions (NCHAP)',
   ];
@@ -53,13 +56,25 @@ export default function AboutPage() {
       {/* ——— Intro ——— */}
       <section className="max-w-6xl mx-auto pt-16 pb-20 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">About</p>
-        <h1 className="font-display text-4xl sm:text-6xl text-ink">
-          Hi, I&apos;m <em className="text-pine">Bhavana.</em>
-        </h1>
+        <div className="flex items-center gap-6">
+          <span className="relative block h-24 w-24 sm:h-32 sm:w-32 shrink-0 overflow-hidden rounded-full ring-1 ring-ink/10">
+            <Image
+              src="/bhavana.webp"
+              alt="Bhavana Bulchandani, counselling psychologist"
+              fill
+              sizes="128px"
+              className="object-cover object-center"
+              priority
+            />
+          </span>
+          <h1 className="font-display text-4xl sm:text-6xl text-ink">
+            Hi, I&apos;m <em className="text-pine">Bhavana.</em>
+          </h1>
+        </div>
         <div className="mt-10 max-w-2xl space-y-6 text-lg text-ink-soft leading-relaxed">
           <p>
-            Reaching out for therapy can feel like a big step — it can be confusing, scary,
-            overwhelming. Here, you will be heard, understood, and supported. My goal is to provide a
+            Reaching out for therapy can feel like a big step. It can be confusing, scary,
+            even overwhelming. Here, you will be heard, understood, and supported. My goal is to provide a
             calm, safe space where you can explore your thoughts and feelings at your own pace, without
             judgment.
           </p>
@@ -97,7 +112,7 @@ export default function AboutPage() {
               control and at peace with themselves.
             </p>
             <p className="font-display text-xl text-ink italic">
-              For me, therapy isn&apos;t just a profession — it&apos;s about walking alongside someone
+              For me, therapy isn&apos;t just a profession. It&apos;s about walking alongside someone
               as they navigate life&apos;s challenges.
             </p>
           </div>
@@ -111,7 +126,7 @@ export default function AboutPage() {
           My <em className="text-pine">approach</em>
         </h2>
         <p className="text-ink-soft leading-relaxed max-w-2xl mb-14">
-          Client-centered and compassionate — combining evidence-based techniques with practices that
+          Client-centered and compassionate, combining evidence-based techniques with practices that
           support personal growth and emotional understanding.
         </p>
 
@@ -173,11 +188,11 @@ export default function AboutPage() {
             <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
               I want this space to feel like a hand extended, not a lecture. If you&apos;re ready to
               take the first step, I offer a{' '}
-              <em className="text-pine">free 15–20 minute discovery call</em> so we can connect, discuss
+              <em className="text-pine">free 15 to 20 minute discovery call</em> so we can connect, discuss
               your needs, and see if therapy with me feels like the right fit.
             </p>
             <p className="mt-6 text-ink-soft">
-              You don&apos;t have to have it all figured out — just starting this conversation is
+              You don&apos;t have to have it all figured out. Just starting this conversation is
               enough.
             </p>
             <Link href="/booking" className="btn-primary mt-10">

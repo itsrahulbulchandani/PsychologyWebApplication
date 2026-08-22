@@ -8,7 +8,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function BookingSuccessPage() {
+export default function BookingSuccessPage({
+  searchParams,
+}: {
+  searchParams?: { bookingId?: string };
+}) {
+  const bookingId = searchParams?.bookingId;
+
   const nextSteps = [
     {
       title: 'Check your email',
@@ -35,6 +41,11 @@ export default function BookingSuccessPage() {
           <p className="mt-6 text-lg text-ink-soft leading-relaxed max-w-md mx-auto">
             Your session has been booked and added to the calendar. I look forward to speaking with you.
           </p>
+          {bookingId && (
+            <p className="mt-6 text-sm text-ink-soft">
+              Booking ID <span className="font-medium text-ink">{bookingId}</span>
+            </p>
+          )}
         </div>
 
         {/* What's Next */}

@@ -67,6 +67,8 @@ export async function sendTherapistBookingEmail(params: {
   transactionId: string;
   meetLink?: string;
   eventLink?: string;
+  bookingId?: string;
+  intakeSummary?: string;
 }): Promise<{ success: boolean; error?: string }> {
   const dt = new Date(params.appointmentIso);
   const readable = isNaN(dt.getTime()) ? params.appointmentIso : dt.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
@@ -79,8 +81,10 @@ export async function sendTherapistBookingEmail(params: {
     `When: ${readable}`,
     `Amount: ₹${params.amount}`,
     `Transaction: ${params.transactionId}`,
+    params.bookingId ? `Booking ID: ${params.bookingId}` : undefined,
     params.meetLink ? `Meet: ${params.meetLink}` : undefined,
     params.eventLink ? `Event: ${params.eventLink}` : undefined,
+    params.intakeSummary ? `\n${params.intakeSummary}` : undefined,
   ].filter(Boolean) as string[];
 
   const text = lines.join('\n');
@@ -93,8 +97,10 @@ export async function sendTherapistBookingEmail(params: {
       <p style="margin: 0 0 6px;"><strong>When:</strong> ${escapeHtml(readable)}</p>
       <p style="margin: 0 0 6px;"><strong>Amount:</strong> ₹${params.amount}</p>
       <p style="margin: 0 0 6px;"><strong>Transaction:</strong> ${escapeHtml(params.transactionId)}</p>
+      ${params.bookingId ? `<p style="margin: 0 0 6px;"><strong>Booking ID:</strong> ${escapeHtml(params.bookingId)}</p>` : ''}
       ${params.meetLink ? `<p style="margin: 0 0 6px;"><strong>Meet:</strong> <a href="${escapeAttr(params.meetLink)}">${escapeHtml(params.meetLink)}</a></p>` : ''}
       ${params.eventLink ? `<p style="margin: 0 0 6px;"><strong>Event:</strong> <a href="${escapeAttr(params.eventLink)}">Open in Google Calendar</a></p>` : ''}
+      ${params.intakeSummary ? `<pre style="margin: 16px 0 0; padding: 12px; background: #f6f6f4; border-radius: 6px; font-family: Arial, sans-serif; font-size: 13px; white-space: pre-wrap;">${escapeHtml(params.intakeSummary)}</pre>` : ''}
     </div>
   `.trim();
 
@@ -114,6 +120,7 @@ export async function sendClientBookingEmail(params: {
   amount: number;
   meetLink?: string;
   therapistEmail: string;
+  bookingId?: string;
 }): Promise<{ success: boolean; error?: string }> {
   const dt = new Date(params.appointmentIso);
   const readable = isNaN(dt.getTime()) ? params.appointmentIso : dt.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
@@ -126,6 +133,7 @@ export async function sendClientBookingEmail(params: {
     `Package: ${params.packageName}`,
     `When: ${readable}`,
     `Amount Paid: ₹${params.amount}`,
+    params.bookingId ? `Booking ID: ${params.bookingId}` : undefined,
     params.meetLink ? `Google Meet Link: ${params.meetLink}` : undefined,
     ``,
     `Please join the meeting 2-3 minutes early. If you need to reschedule, contact us at ${params.therapistEmail} at least 24 hours in advance.`,
@@ -143,6 +151,7 @@ export async function sendClientBookingEmail(params: {
         <tr><td style="padding: 6px 0; font-weight: bold; width: 140px;">Package</td><td>${escapeHtml(params.packageName)}</td></tr>
         <tr><td style="padding: 6px 0; font-weight: bold;">When</td><td>${escapeHtml(readable)}</td></tr>
         <tr><td style="padding: 6px 0; font-weight: bold;">Amount Paid</td><td>₹${params.amount}</td></tr>
+        ${params.bookingId ? `<tr><td style="padding: 6px 0; font-weight: bold;">Booking ID</td><td>${escapeHtml(params.bookingId)}</td></tr>` : ''}
         ${params.meetLink ? `<tr><td style="padding: 6px 0; font-weight: bold;">Meet Link</td><td><a href="${escapeAttr(params.meetLink)}" style="color: #0f766e;">${escapeHtml(params.meetLink)}</a></td></tr>` : ''}
       </table>
       <p style="margin: 0 0 8px; font-size: 14px; color: #555;">Please join the meeting 2–3 minutes early and ensure a quiet, private space.</p>

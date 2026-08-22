@@ -14,7 +14,7 @@ export const faqs: FAQItem[] = [
   {
     question: 'Will a counselor younger in age, be able to handle things?',
     answer:
-      'A therapist’s ability to help comes from their training, experience and capacity to listen with empathy—not their age. What matters most is if you feel understood, safe, and supported in the space we create together. I do understand that we might not be the right fit in the end, and you have every right to explore and find the best match for you.',
+      'A therapist’s ability to help comes from their training, experience and capacity to listen with empathy, not their age. What matters most is if you feel understood, safe, and supported in the space we create together. I do understand that we might not be the right fit in the end, and you have every right to explore and find the best match for you.',
   },
   {
     question: 'How does confidentiality work? What’s the level of privacy?',
@@ -39,12 +39,12 @@ export const faqs: FAQItem[] = [
   {
     question: 'What if I don’t know what to talk about?',
     answer:
-      'That’s completely okay. You don’t need to come with a script. We can begin wherever you are—what you’re feeling today, what’s been bothering you lately, or even why you decided to book the session. I can help you feel comfortable first and we’ll take it from there.',
+      'That’s completely okay. You don’t need to come with a script. We can begin wherever you are: what you’re feeling today, what’s been bothering you lately, or even why you decided to book the session. I can help you feel comfortable first and we’ll take it from there.',
   },
   {
     question: 'Is it okay if I feel nervous or awkward at first?',
     answer:
-      'Yes, very normal. Many people feel unsure or anxious in the beginning. Therapy is a new experience, and it takes time to feel comfortable. There is no pressure to be perfect or say the “right” things. There’s no right or wrong, just being authentic—what you’re feeling at the moment, even if it’s nervousness.',
+      'Yes, very normal. Many people feel unsure or anxious in the beginning. Therapy is a new experience, and it takes time to feel comfortable. There is no pressure to be perfect or say the “right” things. There’s no right or wrong, just being authentic, whatever you’re feeling at the moment, even if it’s nervousness.',
   },
   {
     question: 'Do I need to prepare anything before a session?',
@@ -59,7 +59,7 @@ export const faqs: FAQItem[] = [
   {
     question: 'What if my problem feels too small for therapy?',
     answer:
-      'There is no problem that is “too small.” If something is affecting your peace of mind, it matters. Therapy is not only for big crises—it’s also for everyday struggles, stress, and emotional confusion. You can see your therapist for a short term focus and discontinue when you feel like you’ve accomplished what you came for.',
+      'There is no problem that is “too small.” If something is affecting your peace of mind, it matters. Therapy is not only for big crises. It’s also for everyday struggles, stress, and emotional confusion. You can see your therapist for a short term focus and discontinue when you feel like you’ve accomplished what you came for.',
   },
   {
     question: 'How will I know if therapy is helping?',

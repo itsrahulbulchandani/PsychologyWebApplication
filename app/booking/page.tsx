@@ -16,6 +16,14 @@ export default function BookingPage() {
     emergencyContact: '',
     address: '',
     identityProof: '',
+    preferredLanguage: '',
+    reasonForCounselling: '',
+    problemDuration: '',
+    psychiatricMedication: '',
+    medicationDetails: '',
+    anythingElse: '',
+    mode: 'Video',
+    consultationType: 'Individual',
   });
   const [concerns, setConcerns] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -95,6 +103,20 @@ export default function BookingPage() {
     }
   ];
 
+  const languageOptions = ['English', 'Hindi', 'Hindi & English'];
+
+  const durationOptions = [
+    'Less than 1 month',
+    '1-3 Months',
+    '3-6 Months',
+    '6-12 Months',
+    'More than a year',
+  ];
+
+  const modeOptions = ['Video', 'Audio'];
+
+  const consultationTypeOptions = ['Individual', 'Couple', 'Family'];
+
   const concernOptions = [
     "Anxiety, nervousness, fears",
     "Stress",
@@ -118,7 +140,9 @@ export default function BookingPage() {
     setError('');
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -156,6 +180,31 @@ export default function BookingPage() {
 
     if (!/^\d{10}$/.test(formData.mobile)) {
       setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+
+    if (!/^\d{10}$/.test(formData.emergencyContact)) {
+      setError('Please enter a valid 10-digit emergency contact number');
+      return;
+    }
+
+    if (!formData.preferredLanguage) {
+      setError('Please select your preferred language');
+      return;
+    }
+
+    if (!formData.reasonForCounselling.trim()) {
+      setError('Please tell us why you decided to come for counselling');
+      return;
+    }
+
+    if (!formData.problemDuration) {
+      setError('Please tell us how long this has been a problem for you');
+      return;
+    }
+
+    if (!formData.psychiatricMedication) {
+      setError('Please tell us whether you are taking any psychiatric medication');
       return;
     }
 
@@ -209,15 +258,32 @@ export default function BookingPage() {
           email: formData.email,
           name: formData.name,
           mobileNumber: formData.mobile,
+          emergencyContact: formData.emergencyContact,
+          address: formData.address,
+          identityProof: formData.identityProof,
+          preferredLanguage: formData.preferredLanguage,
+          reasonForCounselling: formData.reasonForCounselling,
+          problemDuration: formData.problemDuration,
+          psychiatricMedication: formData.psychiatricMedication,
+          medicationDetails:
+            formData.psychiatricMedication === 'Yes' ? formData.medicationDetails : '',
+          anythingElse: formData.anythingElse,
+          mode: formData.mode,
+          consultationType: formData.consultationType,
+          concerns,
+          consentSigned,
+          consentSignedAt: new Date().toISOString(),
         }),
       });
 
       const data = await response.json();
 
       if (data.success) {
-        window.location.href = data.eventId
-          ? `/booking/success?eventId=${data.eventId}`
-          : '/booking/success';
+        const params = new URLSearchParams();
+        if (data.eventId) params.set('eventId', data.eventId);
+        if (data.bookingId) params.set('bookingId', data.bookingId);
+        const query = params.toString();
+        window.location.href = query ? `/booking/success?${query}` : '/booking/success';
       } else {
         setError(data.error || 'Failed to confirm booking. Please try again.');
         setIsProcessing(false);
@@ -438,6 +504,142 @@ export default function BookingPage() {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="ID number"
+                  />
+                </div>
+              </div>
+
+              {/* Session details */}
+              <div>
+                <h3 className="font-display text-xl text-ink border-b border-ink/10 pb-3 mb-6">
+                  Session details
+                </h3>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                      Preferred Language *
+                    </label>
+                    <select
+                      name="preferredLanguage"
+                      value={formData.preferredLanguage}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      required
+                    >
+                      <option value="">Select a language</option>
+                      {languageOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                      Mode *
+                    </label>
+                    <select
+                      name="mode"
+                      value={formData.mode}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      required
+                    >
+                      {modeOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                      Type of Consultation *
+                    </label>
+                    <select
+                      name="consultationType"
+                      value={formData.consultationType}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      required
+                    >
+                      {consultationTypeOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                      How long has this been a problem for you? *
+                    </label>
+                    <select
+                      name="problemDuration"
+                      value={formData.problemDuration}
+                      onChange={handleInputChange}
+                      className="input-field"
+                      required
+                    >
+                      <option value="">Select a duration</option>
+                      {durationOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    Please state why you decided to come for counselling *
+                  </label>
+                  <textarea
+                    name="reasonForCounselling"
+                    value={formData.reasonForCounselling}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    rows={3}
+                    placeholder="In a few words, what brings you here?"
+                    required
+                  />
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    Are you taking any psychiatric medication? *
+                  </label>
+                  <div className="flex gap-6 pt-1">
+                    {['Yes', 'No'].map((option) => (
+                      <label key={option} className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="psychiatricMedication"
+                          value={option}
+                          checked={formData.psychiatricMedication === option}
+                          onChange={handleInputChange}
+                          className="w-4 h-4 accent-pine"
+                        />
+                        <span className="text-sm text-ink-soft">{option}</span>
+                      </label>
+                    ))}
+                  </div>
+                  {formData.psychiatricMedication === 'Yes' && (
+                    <input
+                      type="text"
+                      name="medicationDetails"
+                      value={formData.medicationDetails}
+                      onChange={handleInputChange}
+                      className="input-field mt-3"
+                      placeholder="Which medication, and who prescribed it?"
+                    />
+                  )}
+                </div>
+
+                <div className="mt-4">
+                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    Anything else you wish your counsellor to know before the session
+                  </label>
+                  <textarea
+                    name="anythingElse"
+                    value={formData.anythingElse}
+                    onChange={handleInputChange}
+                    className="input-field"
+                    rows={3}
+                    placeholder="Optional"
                   />
                 </div>
               </div>

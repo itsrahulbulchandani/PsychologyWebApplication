@@ -39,12 +39,12 @@ export default function Home() {
     {
       title: 'Your first sessions',
       description:
-        'The first sessions are about getting to know you, creating a safe space, and setting goals together — at your pace, without judgment.',
+        'The first sessions are about getting to know you, creating a safe space, and setting goals together, at your pace and without judgment.',
     },
     {
       title: 'Ongoing growth',
       description:
-        'Weekly 60-minute sessions with practical tools, gentle homework, and chat support in between — so change carries into daily life.',
+        'Weekly 60-minute sessions with practical tools, gentle homework, and chat support in between, so change carries into daily life.',
     },
   ];
 
@@ -93,7 +93,7 @@ export default function Home() {
             </h1>
             <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
               I&apos;m Bhavana Bulchandani, a counselling psychologist. This is a calm, confidential
-              space to work through anxiety, stress, low mood — and everything in between.
+              space to work through anxiety, stress, low mood, and everything in between.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <Link href="/booking" className="btn-primary">
@@ -112,7 +112,7 @@ export default function Home() {
               <div className="bg-sage-pale rounded-t-full border border-ink/10 px-10 pt-16 pb-10 flex flex-col items-center">
                 <Image
                   src="/logo.png"
-                  alt="Sthairyam logo — counselling psychology practice of Bhavana Bulchandani"
+                  alt="Sthairyam logo, the counselling psychology practice of Bhavana Bulchandani"
                   width={160}
                   height={160}
                   priority
@@ -145,12 +145,12 @@ export default function Home() {
             <span className="text-pine">sthairyam</span>{' '}
             <span className="text-ink/40">/ स्थैर्यम् /</span>
             <em className="block mt-4 text-ink-soft text-2xl sm:text-3xl">
-              n. Sanskrit — steadiness; the quality of staying grounded and calm within, even when life
+              n. Sanskrit. Steadiness; the quality of staying grounded and calm within, even when life
               isn&apos;t.
             </em>
           </p>
           <p className="mt-8 text-ink-soft leading-relaxed max-w-xl mx-auto">
-            That steadiness is what we work toward here — not by fixing you, because you aren&apos;t
+            That steadiness is what we work toward here. Not by fixing you, because you aren&apos;t
             broken, but by helping you understand your patterns and find your footing again.
           </p>
         </div>
@@ -195,10 +195,10 @@ export default function Home() {
             <p className="eyebrow mb-6">A note before you begin</p>
             <p className="font-display text-2xl sm:text-[2rem] leading-[1.4] text-ink">
               Maybe your thoughts feel too loud, your energy has quietly drained away, or something just
-              feels stuck. You don&apos;t have to have it all figured out to begin —{' '}
+              feels stuck. You don&apos;t have to have it all figured out to begin.{' '}
               <em className="text-pine">just starting this conversation is enough.</em>
             </p>
-            <p className="mt-8 text-ink-soft">— Bhavana</p>
+            <p className="mt-8 text-ink-soft">Bhavana</p>
             <Link href="/about" className="link-arrow mt-8">
               Get to know me
               <ArrowUpRight size={15} />
@@ -212,7 +212,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <p className="eyebrow mb-4">The process</p>
           <h2 className="font-display text-3xl sm:text-5xl text-ink mb-14">
-            Gentle, structured — <em className="text-pine">one step at a time</em>
+            Gentle, structured, <em className="text-pine">one step at a time</em>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-x-12 gap-y-10">

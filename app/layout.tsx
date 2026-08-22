@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
     default: siteConfig.title,
-    template: "%s | Sthairyam — Bhavana Bulchandani",
+    template: "%s | Sthairyam",
   },
   description: siteConfig.description,
   keywords: [
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
         url: "/logo.png",
         width: 512,
         height: 512,
-        alt: "Sthairyam — Counselling Psychologist",
+        alt: "Sthairyam, Counselling Psychologist",
       },
     ],
   },

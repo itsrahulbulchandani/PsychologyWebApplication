@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { ArrowUpRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Blog — Mental Health Insights & Resources',
+  title: 'Blog: Mental Health Insights & Resources',
   description:
     'Thoughts, insights and practical resources on mental health, emotional wellbeing and self-growth from counselling psychologist Bhavana Bulchandani.',
   alternates: { canonical: '/blog' },

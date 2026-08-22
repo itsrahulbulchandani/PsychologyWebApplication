@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { googleCalendarService } from '@/lib/googleCalendar';
 import { sendTherapistBookingEmail, sendClientBookingEmail } from '@/lib/mailer';
+import { buildEventDescription, generateBookingId, type IntakeDetails } from '@/lib/intake';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,10 +9,23 @@ export const dynamic = 'force-dynamic';
 // Currently only the Discovery Call is bookable.
 const VALID_FREE_PACKAGES = new Set(['Discovery Call']);
 
+function clean(value: unknown, maxLength = 500): string {
+  if (typeof value !== 'string') return '';
+  return value.trim().slice(0, maxLength);
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { packageName, appointmentDate, email, name, mobileNumber } = body;
+    const {
+      packageName,
+      appointmentDate,
+      email,
+      name,
+      mobileNumber,
+      emergencyContact,
+      consentSigned,
+    } = body;
 
     if (!packageName || !appointmentDate || !email || !name || !mobileNumber) {
       return NextResponse.json(
@@ -42,6 +56,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!/^\d{10}$/.test(emergencyContact || '')) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid emergency contact number' },
+        { status: 400 }
+      );
+    }
+
+    if (!consentSigned) {
+      return NextResponse.json(
+        { success: false, error: 'Informed consent must be signed before booking' },
+        { status: 400 }
+      );
+    }
+
+    const bookingId = generateBookingId();
+
+    const intake: IntakeDetails = {
+      name: clean(name, 120),
+      email: clean(email, 160),
+      mobileNumber: clean(mobileNumber, 15),
+      emergencyContact: clean(emergencyContact, 15),
+      address: clean(body.address, 300),
+      identityProof: clean(body.identityProof, 60),
+      preferredLanguage: clean(body.preferredLanguage, 60),
+      reasonForCounselling: clean(body.reasonForCounselling, 1000),
+      problemDuration: clean(body.problemDuration, 60),
+      psychiatricMedication: clean(body.psychiatricMedication, 10),
+      medicationDetails: clean(body.medicationDetails, 300),
+      concerns: Array.isArray(body.concerns)
+        ? body.concerns.filter((c: unknown) => typeof c === 'string').slice(0, 20).map((c: string) => clean(c, 80))
+        : [],
+      anythingElse: clean(body.anythingElse, 1000),
+      mode: clean(body.mode, 30) || 'Video',
+      consultationType: clean(body.consultationType, 30) || 'Individual',
+      packageName: clean(packageName, 60),
+      bookingId,
+      consentSigned: true,
+      consentSignedAt: clean(body.consentSignedAt, 40) || new Date().toISOString(),
+    };
+
     // Discovery call is 20 minutes
     const startTime = new Date(appointmentDate);
     const endTime = new Date(startTime.getTime() + 20 * 60000);
@@ -60,12 +114,12 @@ export async function POST(request: NextRequest) {
     }
 
     const calendarResult = await googleCalendarService.createEvent({
-      summary: `Discovery Call - ${name}`,
-      description: `Package: ${packageName}\nFree 15–20 min discovery call\nPhone: ${mobileNumber}`,
+      summary: `Discovery Call - ${intake.name} (${bookingId})`,
+      description: buildEventDescription(intake, startTime.toISOString()),
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      attendeeEmail: email,
-      attendeeName: name,
+      attendeeEmail: intake.email,
+      attendeeName: intake.name,
     });
 
     if (!calendarResult.success) {
@@ -80,24 +134,27 @@ export async function POST(request: NextRequest) {
     if (therapistEmail) {
       await sendTherapistBookingEmail({
         therapistEmail,
-        clientName: name,
-        clientEmail: email,
+        clientName: intake.name,
+        clientEmail: intake.email,
         packageName,
         appointmentIso: appointmentDate,
         amount: 0,
         transactionId: 'DISCOVERY-CALL',
         meetLink: calendarResult.meetLink,
         eventLink: calendarResult.eventLink,
+        bookingId,
+        intakeSummary: buildEventDescription(intake, startTime.toISOString()),
       });
 
       await sendClientBookingEmail({
-        clientEmail: email,
-        clientName: name,
+        clientEmail: intake.email,
+        clientName: intake.name,
         packageName,
         appointmentIso: appointmentDate,
         amount: 0,
         meetLink: calendarResult.meetLink,
         therapistEmail,
+        bookingId,
       });
     } else {
       console.log('⚠️ THERAPIST_EMAIL not set, skipping emails');
@@ -106,6 +163,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       eventId: calendarResult.eventId,
+      bookingId,
     });
   } catch (error) {
     console.error('Booking confirm error:', error);

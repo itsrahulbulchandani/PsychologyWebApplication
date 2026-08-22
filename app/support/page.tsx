@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'How I Can Support You — Areas of Counselling',
+  title: 'How I Can Support You: Areas of Counselling',
   description:
     'Online therapy for anxiety, stress, low mood, relationships, burnout, self-esteem, life transitions and more. Discover how counselling can help you feel heard, gain clarity and grow.',
   alternates: { canonical: '/support' },
@@ -61,7 +61,7 @@ export default function SupportPage() {
     {
       title: 'The relief of being heard',
       description:
-        'There is something deeply comforting about finally talking openly about your worries, pain, and confusion—and feeling truly understood. In therapy, you don’t have to filter your thoughts or worry about being judged. You can say what’s on your mind freely. For many people, this experience alone brings a sense of relief they may not have felt in a long time.',
+        'There is something deeply comforting about finally talking openly about your worries, pain, and confusion, and feeling truly understood. In therapy, you don’t have to filter your thoughts or worry about being judged. You can say what’s on your mind freely. For many people, this experience alone brings a sense of relief they may not have felt in a long time.',
     },
     {
       title: 'Gaining clarity and understanding patterns',
@@ -71,7 +71,7 @@ export default function SupportPage() {
     {
       title: 'Learning new ways to cope and grow',
       description:
-        'Therapy also offers practical, psychology-based tools through conversation, exercises, and learning resources. These help you develop healthier ways of thinking and responding to life’s challenges. We believe that emotional well-being is a skill that can be learned—and therapy is a space where you practice this skill, step by step, in a supportive environment.',
+        'Therapy also offers practical, psychology-based tools through conversation, exercises, and learning resources. These help you develop healthier ways of thinking and responding to life’s challenges. We believe that emotional well-being is a skill that can be learned, and therapy is a space where you practice this skill, step by step, in a supportive environment.',
     },
   ];
 

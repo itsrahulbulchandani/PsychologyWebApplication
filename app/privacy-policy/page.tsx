@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — Confidentiality & Your Rights',
+  title: 'Privacy Policy: Confidentiality & Your Rights',
   description:
     'How your privacy is protected in therapy: confidential sessions, secure records, no sharing without consent, and the rare legal exceptions to confidentiality.',
   alternates: { canonical: '/privacy-policy' },
@@ -122,7 +122,7 @@ export default function PrivacyPolicyPage() {
       <section className="max-w-6xl mx-auto pt-4">
         <div className="bg-sage-pale border border-ink/10 rounded-2xl px-6 py-14 sm:px-16 text-center">
           <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink max-w-2xl mx-auto">
-            Your trust is central to this work. Protecting your privacy is not just a policy —{' '}
+            Your trust is central to this work. Protecting your privacy is not just a policy.{' '}
             <em className="text-pine">
               it is a professional and ethical commitment I take very seriously.
             </em>
