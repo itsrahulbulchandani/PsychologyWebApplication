@@ -419,8 +419,8 @@ export default function BookingPage() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Full Name *
                     </label>
                     <input
@@ -433,8 +433,8 @@ export default function BookingPage() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Email Address *
                     </label>
                     <input
@@ -447,8 +447,8 @@ export default function BookingPage() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Phone Number *
                     </label>
                     <input
@@ -462,8 +462,8 @@ export default function BookingPage() {
                       required
                     />
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Emergency Contact Number *
                     </label>
                     <input
@@ -515,8 +515,8 @@ export default function BookingPage() {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Preferred Language *
                     </label>
                     <select
@@ -532,8 +532,8 @@ export default function BookingPage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Mode *
                     </label>
                     <select
@@ -548,8 +548,8 @@ export default function BookingPage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Type of Consultation *
                     </label>
                     <select
@@ -564,8 +564,8 @@ export default function BookingPage() {
                       ))}
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <div className="flex flex-col">
+                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       How long has this been a problem for you? *
                     </label>
                     <select
