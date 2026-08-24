@@ -1,32 +1,51 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { siteConfig } from '@/lib/site';
+import { pageMeta } from '@/lib/seo';
+
+export const metadata: Metadata = {
+  ...pageMeta({
+    path: '/',
+    title: 'Counselling Psychologist in India | Online Therapy',
+    description: siteConfig.description,
+  }),
+  // The home page keeps the standalone brand title rather than the template.
+  title: siteConfig.title,
+};
 
 export default function Home() {
   const workAreas = [
     {
       title: 'Anxiety & Stress',
       description: 'Calm your mind, manage overwhelming thoughts, and feel more balanced in everyday life.',
+      href: '/how-i-can-help#anxiety-and-stress',
     },
     {
       title: 'Low Mood & Emotional Wellbeing',
       description: 'A safe space to talk about sadness, exhaustion, or loss of motivation.',
+      href: '/how-i-can-help#low-mood',
     },
     {
       title: 'Relationships & Communication',
       description: 'Work through emotional hurt, misunderstandings, and conflict with clarity.',
+      href: '/how-i-can-help#relationships',
     },
     {
       title: 'Burnout & Emotional Fatigue',
       description: 'Find ways to cope with constant pressure, exhaustion, and feeling drained.',
+      href: '/how-i-can-help#burnout',
     },
     {
       title: 'Self-Esteem & Confidence',
       description: 'Build a healthier relationship with yourself and trust in your own voice.',
+      href: '/how-i-can-help#self-esteem',
     },
     {
       title: 'Life Transitions & Identity',
       description: 'Support through career shifts, breakups, loss, or questions about direction.',
+      href: '/how-i-can-help#life-transitions',
     },
   ];
 
@@ -84,23 +103,29 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-16 pb-20 lg:pt-24 lg:pb-28 animate-fadeInUp">
           <div className="lg:col-span-7">
             <p className="eyebrow mb-6">Counselling Psychologist · Online across India</p>
-            <h1 className="font-display text-[2.6rem] leading-[1.08] sm:text-6xl lg:text-[4.2rem] text-ink font-normal">
+            <p className="font-display text-[2.6rem] leading-[1.08] sm:text-6xl lg:text-[4.2rem] text-ink font-normal">
               Feel understood.
               <br />
               Feel supported.
               <br />
               <em className="text-pine">Begin your healing journey.</em>
+            </p>
+            {/* Kept as the H1 so the page still states the service to search engines */}
+            <h1 className="mt-7 font-display text-2xl sm:text-3xl text-ink-soft leading-snug font-normal">
+              Online therapy with a counselling psychologist in India
             </h1>
-            <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
-              I&apos;m Bhavana Bulchandani, a counselling psychologist. This is a calm, confidential
-              space to work through anxiety, stress, low mood, and everything in between.
+            <p className="mt-7 text-lg text-ink-soft leading-relaxed max-w-xl">
+              I&apos;m Bhavana Bulchandani, a counselling psychologist (MA Psychology, Banaras Hindu
+              University). I work online with people across India on anxiety, stress, low mood,
+              relationships, burnout and self-esteem, in confidential video sessions held in English
+              or Hindi. Everyone starts with a free 15 to 20 minute discovery call.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <Link href="/booking" className="btn-primary">
                 Book a free discovery call
                 <ArrowRight size={16} />
               </Link>
-              <Link href="/support" className="link-arrow">
+              <Link href="/how-i-can-help" className="link-arrow">
                 How I can help
                 <ArrowUpRight size={15} />
               </Link>
@@ -166,8 +191,8 @@ export default function Home() {
                 What we can work on, <em className="text-pine">together</em>
               </h2>
             </div>
-            <Link href="/support" className="link-arrow shrink-0 mb-1">
-              See all areas
+            <Link href="/how-i-can-help" className="link-arrow shrink-0 mb-1">
+              See how I can help
               <ArrowUpRight size={15} />
             </Link>
           </div>
@@ -179,7 +204,11 @@ export default function Home() {
                   {String(index + 1).padStart(2, '0')}
                 </span>
                 <div>
-                  <h3 className="font-display text-xl text-ink mb-1.5">{area.title}</h3>
+                  <h3 className="font-display text-xl text-ink mb-1.5">
+                    <Link href={area.href} className="hover:text-pine transition-colors">
+                      {area.title}
+                    </Link>
+                  </h3>
                   <p className="text-ink-soft text-[15px] leading-relaxed">{area.description}</p>
                 </div>
               </div>
@@ -297,6 +326,16 @@ export default function Home() {
                 />
               </Link>
             ))}
+          </div>
+          <div className="mt-10 flex flex-col sm:flex-row gap-6 sm:gap-10">
+            <Link href="/faq" className="link-arrow">
+              All frequently asked questions
+              <ArrowUpRight size={15} />
+            </Link>
+            <Link href="/blog" className="link-arrow">
+              Articles on therapy, anxiety and burnout
+              <ArrowUpRight size={15} />
+            </Link>
           </div>
         </div>
       </section>

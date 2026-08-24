@@ -85,3 +85,21 @@ label:focus-visible {
 .animate-fadeIn {
   animation: fadeIn 0.8s ease-out;
 }
+
+/* Keyboard-only skip link: invisible until focused, so the visual design is unchanged */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.75rem 1.25rem;
+  background-color: #1e4b3f;
+  color: #faf7f0;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+}

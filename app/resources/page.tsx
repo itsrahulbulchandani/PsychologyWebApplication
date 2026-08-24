@@ -1,14 +1,17 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
-import { siteConfig } from '@/lib/site';
+import { siteConfig, absoluteUrl } from '@/lib/site';
+import { pageMeta } from '@/lib/seo';
+import { sortedArticles } from '@/lib/articles';
+import { breadcrumbSchema, jsonLdScript } from '@/lib/schema';
 
-export const metadata: Metadata = {
-  title: 'Resources: Guides & Tools for Mental Wellbeing',
+export const metadata: Metadata = pageMeta({
+  path: '/resources',
+  title: 'Mental Health Resources: Guides, Articles & Helplines',
   description:
-    'Practical guides and worksheets on anxiety, mindfulness, sleep and stress from counselling psychologist Bhavana Bulchandani, plus articles on the blog.',
-  alternates: { canonical: '/resources' },
-};
+    'Free guides on anxiety, mindfulness, sleep and stress from counselling psychologist Bhavana Bulchandani, plus in-depth articles and India-wide mental health helpline numbers.',
+});
 
 export default function ResourcesPage() {
   const guides = [
@@ -36,6 +39,13 @@ export default function ResourcesPage() {
 
   return (
     <div className="px-5 sm:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          breadcrumbSchema([{ name: 'Resources', path: '/resources' }])
+        )}
+      />
+
       {/* ——— Header ——— */}
       <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">Library</p>
@@ -84,20 +94,64 @@ export default function ResourcesPage() {
         </p>
       </section>
 
-      {/* ——— More coming ——— */}
+      {/* ——— Articles ——— */}
+      <section className="max-w-6xl mx-auto pb-20">
+        <div className="border-t border-ink/10 pt-12">
+          <p className="eyebrow mb-4">Read</p>
+          <h2 className="font-display text-2xl sm:text-3xl text-ink mb-4">
+            Articles worth <em className="text-pine">starting with</em>
+          </h2>
+          <p className="text-ink-soft leading-relaxed max-w-xl mb-10">
+            Longer pieces on the questions people most often bring to a first call.
+          </p>
+          <div>
+            {sortedArticles.map((article) => (
+              <Link
+                key={article.slug}
+                href={`/blog/${article.slug}`}
+                className="group border-t border-ink/10 last:border-b py-6 flex items-center justify-between gap-6"
+              >
+                <span className="font-display text-lg sm:text-xl text-ink group-hover:text-pine transition-colors">
+                  {article.title}
+                </span>
+                <ArrowUpRight
+                  size={20}
+                  className="text-ink/30 group-hover:text-pine transition-colors shrink-0"
+                />
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ——— Crisis support ——— */}
       <section className="max-w-6xl mx-auto pb-20">
         <div className="bg-sage-pale border border-ink/10 rounded-2xl px-6 py-14 sm:px-16 sm:py-16">
           <div className="max-w-2xl">
-            <p className="eyebrow mb-6">In the works</p>
-            <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
-              Self-help workbooks, guided audio practices, and structured programs are coming soon. In
-              the meantime, <em className="text-pine">the blog has articles</em> on mental health and
-              emotional wellbeing.
+            <p className="eyebrow mb-6">If you need help now</p>
+            <h2 className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
+              Free helplines available <em className="text-pine">across India, 24x7</em>
+            </h2>
+            <p className="mt-6 text-ink-soft leading-relaxed">
+              This practice is not a crisis service. If you or someone you know is in immediate
+              danger, please use one of these instead of waiting for an appointment.
             </p>
-            <Link href="/blog" className="link-arrow mt-8">
-              Read the blog
-              <ArrowUpRight size={15} />
-            </Link>
+            <ul className="mt-7 space-y-4 text-ink-soft">
+              <li>
+                <span className="block text-ink font-medium">Tele-MANAS (Government of India)</span>
+                <a href="tel:14416" className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine">14416</a>
+                {' or '}
+                <a href="tel:18008914416" className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine">1800-891-4416</a>
+              </li>
+              <li>
+                <span className="block text-ink font-medium">KIRAN Mental Health Helpline</span>
+                <a href="tel:18005990019" className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine">1800-599-0019</a>
+              </li>
+              <li>
+                <span className="block text-ink font-medium">Emergency services</span>
+                <a href="tel:112" className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine">112</a>
+              </li>
+            </ul>
           </div>
         </div>
       </section>

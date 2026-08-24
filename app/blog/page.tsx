@@ -1,42 +1,54 @@
 import type { Metadata } from 'next';
-import { ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { sortedArticles, externalArchive } from '@/lib/articles';
+import { breadcrumbSchema, jsonLdScript } from '@/lib/schema';
+import { siteConfig, absoluteUrl } from '@/lib/site';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Blog: Mental Health Insights & Resources',
+export const metadata: Metadata = pageMeta({
+  path: '/blog',
+  title: 'Blog: Therapy, Anxiety & Emotional Wellbeing',
   description:
-    'Thoughts, insights and practical resources on mental health, emotional wellbeing and self-growth from counselling psychologist Bhavana Bulchandani.',
-  alternates: { canonical: '/blog' },
+    'Articles on therapy, anxiety, stress, overthinking, burnout and relationships, written by counselling psychologist Bhavana Bulchandani for people considering support.',
+});
+
+const blogListSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  '@id': `${siteConfig.url}/blog#blog`,
+  name: 'The Sthairyam blog',
+  url: absoluteUrl('/blog'),
+  inLanguage: siteConfig.lang,
+  author: { '@id': `${siteConfig.url}/#bhavana` },
+  publisher: { '@id': `${siteConfig.url}/#practice` },
+  blogPost: sortedArticles.map((article) => ({
+    '@type': 'BlogPosting',
+    headline: article.title,
+    description: article.excerpt,
+    url: absoluteUrl(`/blog/${article.slug}`),
+    datePublished: article.datePublished,
+    dateModified: article.dateModified,
+    author: { '@id': `${siteConfig.url}/#bhavana` },
+  })),
 };
 
-type WordPressPost = {
-  id: number;
-  title: { rendered: string };
-  excerpt: { rendered: string };
-  link: string;
-  date: string;
-};
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('en-IN', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
 
-const sanitizeHtml = (html: string) =>
-  html.replace(/&nbsp;|&#160;/g, ' ').replace(/<[^>]*>/g, '').trim();
-
-async function getPosts(): Promise<WordPressPost[]> {
-  const response = await fetch(
-    'https://public-api.wordpress.com/wp/v2/sites/psychfuel.home.blog/posts?per_page=9',
-    { next: { revalidate: 300 } }
-  );
-
-  if (!response.ok) {
-    return [];
-  }
-
-  return response.json();
-}
-
-export default async function BlogPage() {
-  const posts = await getPosts();
-
+export default function BlogPage() {
   return (
     <div className="px-5 sm:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(blogListSchema)} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(breadcrumbSchema([{ name: 'Blog', path: '/blog' }]))}
+      />
+
       {/* ——— Header ——— */}
       <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">Writing</p>
@@ -44,49 +56,83 @@ export default async function BlogPage() {
           The <em className="text-pine">blog</em>
         </h1>
         <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
-          Thoughts, insights, and resources on mental health and well-being.
+          Articles on therapy, anxiety, stress, overthinking, burnout and relationships. Written for
+          people who are weighing up whether to reach out, and for people already doing the work.
         </p>
       </section>
 
-      {/* ——— Posts ——— */}
-      <section className="max-w-6xl mx-auto pb-8">
-        {posts.length === 0 ? (
-          <div className="border-t border-b border-ink/10 py-16 text-center text-ink-soft">
-            Unable to load posts right now. Please check back soon.
-          </div>
-        ) : (
-          <div>
-            {posts.map((post) => (
-              <a
-                key={post.id}
-                href={post.link}
-                target="_blank"
-                rel="noreferrer"
-                className="group border-t border-ink/10 last:border-b py-8 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-8 items-baseline"
-              >
-                <p className="md:col-span-2 text-[11px] uppercase tracking-[0.18em] text-clay font-semibold">
-                  {new Date(post.date).toLocaleDateString('en-IN', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </p>
-                <h2 className="md:col-span-4 font-display text-xl sm:text-2xl text-ink group-hover:text-pine transition-colors leading-snug">
-                  {sanitizeHtml(post.title.rendered)}
-                </h2>
-                <p className="md:col-span-5 text-ink-soft text-[15px] leading-relaxed line-clamp-3">
-                  {sanitizeHtml(post.excerpt.rendered)}
-                </p>
-                <span className="md:col-span-1 flex md:justify-end">
-                  <ArrowUpRight size={20} className="text-ink/30 group-hover:text-pine transition-colors" />
-                </span>
-              </a>
+      {/* ——— Articles ——— */}
+      <section className="max-w-6xl mx-auto pb-16">
+        <div>
+          {sortedArticles.map((article) => (
+            <Link
+              key={article.slug}
+              href={`/blog/${article.slug}`}
+              className="group border-t border-ink/10 last:border-b py-8 grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-8 items-baseline"
+            >
+              <p className="md:col-span-2 text-[11px] uppercase tracking-[0.18em] text-clay font-semibold">
+                {formatDate(article.datePublished)}
+              </p>
+              <h2 className="md:col-span-4 font-display text-xl sm:text-2xl text-ink group-hover:text-pine transition-colors leading-snug">
+                {article.title}
+              </h2>
+              <p className="md:col-span-5 text-ink-soft text-[15px] leading-relaxed">
+                {article.excerpt}
+              </p>
+              <span className="md:col-span-1 flex md:justify-end">
+                <ArrowUpRight
+                  size={20}
+                  className="text-ink/30 group-hover:text-pine transition-colors"
+                />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* ——— Earlier writing ——— */}
+      <section className="max-w-6xl mx-auto pb-20">
+        <div className="border-t border-ink/10 pt-12">
+          <p className="eyebrow mb-4">Earlier writing</p>
+          <h2 className="font-display text-2xl sm:text-3xl text-ink mb-4">
+            From <em className="text-pine">PsychFuel</em>
+          </h2>
+          <p className="text-ink-soft leading-relaxed max-w-xl mb-8">
+            Pieces I wrote between 2022 and 2023, before Sthairyam existed. They still live on
+            PsychFuel and open in a new tab.
+          </p>
+          <ul className="space-y-3 max-w-2xl">
+            {externalArchive.map((post) => (
+              <li key={post.url} className="text-[15px] leading-relaxed flex gap-3">
+                <span className="text-pine/50 shrink-0 mt-px">—</span>
+                <a
+                  href={post.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-ink-soft hover:text-pine transition-colors"
+                >
+                  {post.title}
+                </a>
+              </li>
             ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* ——— CTA ——— */}
+      <section className="max-w-6xl mx-auto">
+        <div className="bg-sage-pale border border-ink/10 rounded-2xl px-6 py-14 sm:px-16 sm:py-16">
+          <div className="max-w-2xl">
+            <p className="font-display text-2xl sm:text-[1.75rem] leading-[1.45] text-ink">
+              Reading about it is a good start. If you would like to talk it through with someone,{' '}
+              <em className="text-pine">the first call is free.</em>
+            </p>
+            <Link href="/booking" className="btn-primary mt-10">
+              Book a free discovery call
+              <ArrowRight size={16} />
+            </Link>
           </div>
-        )}
-        {posts.length > 0 && (
-          <p className="text-ink-soft text-sm mt-6">Posts open on PsychFuel, my writing home.</p>
-        )}
+        </div>
       </section>
     </div>
   );

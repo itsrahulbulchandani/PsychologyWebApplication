@@ -12,7 +12,7 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'About', href: '/about' },
-    { name: 'How I Can Help', href: '/support' },
+    { name: 'How I Can Help', href: '/how-i-can-help' },
     { name: 'What to Expect', href: '/what-to-expect' },
     { name: 'Blog', href: '/blog' },
     { name: 'FAQ', href: '/faq' },
@@ -55,7 +55,7 @@ export default function Navbar() {
               href="/booking"
               className="inline-flex items-center px-5 py-2 border border-pine text-pine rounded-full text-[13px] font-medium tracking-wide hover:bg-pine hover:text-cream transition-colors duration-200"
             >
-              Book a Session
+              Book a Free Call
             </Link>
           </div>
 
@@ -92,7 +92,7 @@ export default function Navbar() {
               className="block mt-4 px-4 py-3 border border-pine text-pine rounded-full font-medium text-center text-[15px] hover:bg-pine hover:text-cream transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Book a Session
+              Book a Free Call
             </Link>
           </div>
         </div>

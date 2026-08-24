@@ -4,14 +4,16 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import { siteConfig } from "@/lib/site";
+import { siteConfig, absoluteUrl } from "@/lib/site";
+import { rootGraph, jsonLdScript } from "@/lib/schema";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const cinzel = Cinzel({ subsets: ["latin"], variable: "--font-cinzel", display: "swap" });
 const fraunces = Fraunces({
   subsets: ["latin"],
   variable: "--font-display",
   axes: ["opsz"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -21,44 +23,23 @@ export const metadata: Metadata = {
     template: "%s | Sthairyam",
   },
   description: siteConfig.description,
-  keywords: [
-    "counselling psychologist",
-    "online therapy India",
-    "online counselling",
-    "therapist India",
-    "anxiety therapy",
-    "stress management",
-    "depression counselling",
-    "relationship counselling",
-    "mental health support",
-    "CBT therapy online",
-    "affordable therapy India",
-    "Bhavana Bulchandani",
-    "Sthairyam",
-  ],
-  authors: [{ name: siteConfig.therapist }],
+  applicationName: siteConfig.name,
+  authors: [{ name: siteConfig.therapist, url: absoluteUrl("/about") }],
   creator: siteConfig.therapist,
+  publisher: siteConfig.name,
+  category: "Health",
   openGraph: {
     type: "website",
     locale: siteConfig.locale,
-    url: siteConfig.url,
+    url: absoluteUrl("/"),
     siteName: siteConfig.name,
     title: siteConfig.title,
     description: siteConfig.description,
-    images: [
-      {
-        url: "/logo.png",
-        width: 512,
-        height: 512,
-        alt: "Sthairyam, Counselling Psychologist",
-      },
-    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: siteConfig.title,
     description: siteConfig.description,
-    images: ["/logo.png"],
   },
   robots: {
     index: true,
@@ -68,6 +49,7 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
   alternates: {
@@ -77,52 +59,7 @@ export const metadata: Metadata = {
     icon: "/logo.png",
     apple: "/logo.png",
   },
-};
-
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "ProfessionalService",
-      "@id": `${siteConfig.url}/#service`,
-      name: "Sthairyam",
-      description: siteConfig.description,
-      url: siteConfig.url,
-      logo: `${siteConfig.url}/logo.png`,
-      image: `${siteConfig.url}/logo.png`,
-      email: siteConfig.email,
-      priceRange: "₹₹",
-      areaServed: { "@type": "Country", name: "India" },
-      availableChannel: {
-        "@type": "ServiceChannel",
-        serviceUrl: `${siteConfig.url}/booking`,
-        name: "Online video sessions",
-      },
-      founder: { "@id": `${siteConfig.url}/#therapist` },
-    },
-    {
-      "@type": "Person",
-      "@id": `${siteConfig.url}/#therapist`,
-      name: "Bhavana Bulchandani",
-      jobTitle: "Counselling Psychologist",
-      url: `${siteConfig.url}/about`,
-      email: siteConfig.email,
-      alumniOf: [
-        { "@type": "CollegeOrUniversity", name: "Banaras Hindu University" },
-        { "@type": "CollegeOrUniversity", name: "Amity University" },
-        { "@type": "CollegeOrUniversity", name: "Jamia Millia Islamia" },
-      ],
-      knowsAbout: [
-        "Counselling Psychology",
-        "Cognitive Behavioral Therapy",
-        "Mindfulness",
-        "Anxiety",
-        "Stress Management",
-        "Emotional Wellbeing",
-      ],
-      worksFor: { "@id": `${siteConfig.url}/#service` },
-    },
-  ],
+  formatDetection: { telephone: false },
 };
 
 export default function RootLayout({
@@ -134,14 +71,17 @@ export default function RootLayout({
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
-    <html lang="en">
+    <html lang={siteConfig.lang}>
       <body className={`${inter.className} ${inter.variable} ${cinzel.variable} ${fraunces.variable} font-sans`}>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={jsonLdScript(rootGraph)}
         />
+        <a href="#main" className="skip-link">
+          Skip to main content
+        </a>
         <Navbar />
-        <main className="pt-16 min-h-screen">
+        <main id="main" className="pt-16 min-h-screen">
           {children}
         </main>
         <Footer />

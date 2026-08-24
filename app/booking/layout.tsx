@@ -1,12 +1,53 @@
 import type { Metadata } from 'next';
+import { breadcrumbSchema, jsonLdScript, ID } from '@/lib/schema';
+import { siteConfig, absoluteUrl } from '@/lib/site';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'Book a Session: Free Discovery Call & Therapy Packages',
+export const metadata: Metadata = pageMeta({
+  path: '/booking',
+  title: 'Book a Free Discovery Call with a Counselling Psychologist',
   description:
-    'Book an online counselling session with Bhavana Bulchandani. Start with a free 15–20 minute discovery call, then choose single sessions or discounted 3- and 6-session bundles.',
-  alternates: { canonical: '/booking' },
+    'Book a free 15 to 20 minute online discovery call with counselling psychologist Bhavana Bulchandani. No payment, no obligation. Sessions from ₹1,200, online across India.',
+});
+
+const reservationSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  '@id': `${siteConfig.url}/booking#webpage`,
+  url: absoluteUrl('/booking'),
+  name: 'Book a free discovery call',
+  inLanguage: siteConfig.lang,
+  isPartOf: { '@id': ID.website },
+  about: { '@id': ID.practice },
+  primaryImageOfPage: absoluteUrl('/logo.png'),
+  potentialAction: {
+    '@type': 'ReserveAction',
+    name: 'Book a free discovery call',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: absoluteUrl('/booking'),
+      actionPlatform: [
+        'https://schema.org/DesktopWebPlatform',
+        'https://schema.org/MobileWebPlatform',
+      ],
+    },
+    result: {
+      '@type': 'Reservation',
+      name: 'Free 15 to 20 minute online discovery call',
+      provider: { '@id': ID.practice },
+    },
+  },
 };
 
 export default function BookingLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(reservationSchema)} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(breadcrumbSchema([{ name: 'Booking', path: '/booking' }]))}
+      />
+      {children}
+    </>
+  );
 }

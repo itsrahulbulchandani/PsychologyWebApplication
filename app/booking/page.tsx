@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Check, AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar from '@/components/BookingCalendar';
 
@@ -15,7 +16,6 @@ export default function BookingPage() {
     mobile: '',
     emergencyContact: '',
     address: '',
-    identityProof: '',
     preferredLanguage: '',
     reasonForCounselling: '',
     problemDuration: '',
@@ -101,6 +101,36 @@ export default function BookingPage() {
       popular: false,
       discount: "Save ₹1,200"
     }
+  ];
+
+  const discoveryFacts = [
+    { label: 'How long', value: '15 to 20 minutes.' },
+    { label: 'What it costs', value: 'Nothing. The discovery call is free.' },
+    {
+      label: 'What happens',
+      value:
+        'You describe what has been going on and what you are hoping for. You can ask me anything: my qualifications, how I work, fees, or the practicalities. I will tell you honestly whether I think I can help.',
+    },
+    {
+      label: 'Where',
+      value:
+        'Online, over Google Meet. You will get a confirmation email and a calendar invite with the link as soon as you confirm below.',
+    },
+    {
+      label: 'Any obligation?',
+      value:
+        'None. Plenty of people take the call and decide to think about it, or decide therapy is not what they need right now. That is a perfectly good outcome.',
+    },
+    {
+      label: 'If we continue',
+      value:
+        'We schedule your first full session, up to 60 minutes, usually weekly to begin with. A single session is ₹1,200, with 3-session (₹3,200) and 6-session (₹6,000) bundles available. Paid sessions are arranged after the discovery call, and are paid in advance.',
+    },
+    {
+      label: 'If I am not the right fit',
+      value:
+        'I will say so, and where I can I will point you toward the kind of professional who would serve you better. This is not a crisis service; for urgent help, call Tele-MANAS on 14416 or emergency services on 112.',
+    },
   ];
 
   const languageOptions = ['English', 'Hindi', 'Hindi & English'];
@@ -260,7 +290,6 @@ export default function BookingPage() {
           mobileNumber: formData.mobile,
           emergencyContact: formData.emergencyContact,
           address: formData.address,
-          identityProof: formData.identityProof,
           preferredLanguage: formData.preferredLanguage,
           reasonForCounselling: formData.reasonForCounselling,
           problemDuration: formData.problemDuration,
@@ -299,22 +328,76 @@ export default function BookingPage() {
       <section className="max-w-6xl mx-auto pt-16 pb-12 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">Booking</p>
         <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
-          Book your <em className="text-pine">session</em>
+          Book a free <em className="text-pine">discovery call</em>
         </h1>
-        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
-          Choose a package, select your preferred date and time, complete the consent form, and confirm
-          your booking.
+        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-2xl">
+          Everyone starts here. Pick a time that suits you, complete the consent form, and you&apos;ll
+          have a free 15 to 20 minute video call with me, Bhavana Bulchandani, counselling
+          psychologist. There is no payment and no obligation to book a session afterwards.
         </p>
       </section>
 
       {/* ——— Session facts ——— */}
       <section className="max-w-6xl mx-auto mb-16">
         <div className="border-t border-b border-ink/10 py-5 flex flex-wrap justify-center lg:justify-between gap-x-10 gap-y-2 text-[13px] tracking-wide text-ink-soft">
-          <span>Sessions up to 60 minutes</span>
+          <span>Free 15–20 minute discovery call</span>
           <span className="hidden sm:inline text-ink/20">·</span>
-          <span>Online, from the comfort of your home</span>
+          <span>Online video, anywhere in India</span>
           <span className="hidden sm:inline text-ink/20">·</span>
-          <span>Free 15–20 minute discovery call to begin</span>
+          <span>English or Hindi</span>
+          <span className="hidden sm:inline text-ink/20">·</span>
+          <span>Strictly confidential</span>
+        </div>
+      </section>
+
+      {/* ——— What the discovery call is ——— */}
+      <section className="max-w-6xl mx-auto mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Before you book</p>
+            <h2 className="font-display text-2xl sm:text-3xl text-ink leading-snug">
+              What the discovery call <em className="text-pine">actually is</em>
+            </h2>
+            <p className="mt-5 text-ink-soft text-[15px] leading-relaxed">
+              It is a short conversation, not a therapy session, and not a sales call. Its only
+              purpose is to work out whether we are a good fit.
+            </p>
+          </div>
+
+          <div className="lg:col-span-8 max-w-2xl">
+            <dl className="space-y-0">
+              {discoveryFacts.map((fact, index) => (
+                <div
+                  key={index}
+                  className="border-t border-ink/10 last:border-b py-5 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-6"
+                >
+                  <dt className="sm:col-span-4 text-[11px] uppercase tracking-[0.18em] text-ink-soft font-semibold pt-1">
+                    {fact.label}
+                  </dt>
+                  <dd className="sm:col-span-8 text-ink-soft text-[15px] leading-relaxed">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-7 text-ink-soft text-[15px] leading-relaxed">
+              Want the full session-by-session process first?{' '}
+              <Link
+                href="/what-to-expect"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                Read what to expect
+              </Link>
+              , or{' '}
+              <Link
+                href="/faq"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                the FAQ
+              </Link>{' '}
+              for fees, rescheduling and confidentiality.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -488,20 +571,6 @@ export default function BookingPage() {
                     onChange={handleInputChange}
                     className="input-field"
                     placeholder="Your address"
-                  />
-                </div>
-
-                <div className="mt-4">
-                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
-                    Identity Proof (Aadhar / PAN / Voter ID / Driving License)
-                  </label>
-                  <input
-                    type="text"
-                    name="identityProof"
-                    value={formData.identityProof}
-                    onChange={handleInputChange}
-                    className="input-field"
-                    placeholder="ID number"
                   />
                 </div>
               </div>

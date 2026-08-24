@@ -1,5 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
+  async redirects() {
+    return [
+      // "How I Can Help" moved to a slug that matches the nav label and search intent.
+      { source: '/support', destination: '/how-i-can-help', permanent: true },
+      // Common variants people and old links use.
+      { source: '/services', destination: '/how-i-can-help', permanent: true },
+      { source: '/contact', destination: '/booking', permanent: true },
+      { source: '/book', destination: '/booking', permanent: true },
+      { source: '/privacy', destination: '/privacy-policy', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

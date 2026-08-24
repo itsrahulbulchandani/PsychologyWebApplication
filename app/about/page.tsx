@@ -1,13 +1,29 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { breadcrumbSchema, jsonLdScript, ID } from '@/lib/schema';
+import { siteConfig, absoluteUrl } from '@/lib/site';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'About Bhavana: Counselling Psychologist',
+export const metadata: Metadata = pageMeta({
+  path: '/about',
+  title: 'About Bhavana Bulchandani, Counselling Psychologist',
   description:
-    'Meet Bhavana Bulchandani, counselling psychologist (MA Psychology, BHU). A client-centered, compassionate approach using CBT, mindfulness and emotion-focused work. Free discovery call available.',
-  alternates: { canonical: '/about' },
+    'Bhavana Bulchandani is a counselling psychologist with an MA in Psychology from Banaras Hindu University. Her training, therapeutic approach, who she works with, and how online sessions are run.',
+  ogType: 'profile',
+});
+
+const profileSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  '@id': `${siteConfig.url}/about#profilepage`,
+  url: absoluteUrl('/about'),
+  inLanguage: siteConfig.lang,
+  name: 'About Bhavana Bulchandani, Counselling Psychologist',
+  mainEntity: { '@id': ID.person },
+  about: { '@id': ID.person },
+  isPartOf: { '@id': ID.website },
 };
 
 export default function AboutPage() {
@@ -45,14 +61,30 @@ export default function AboutPage() {
     { degree: 'BA in Applied Psychology', institution: 'Amity University', year: '2017' },
   ];
 
+  const practiceFacts = [
+    'All sessions are online, over video, so you can attend from anywhere in India.',
+    'Sessions run up to 60 minutes, usually weekly to begin with, and the frequency is reviewed as things change.',
+    'Sessions are held in English, Hindi, or a comfortable mix of the two.',
+    'Individual, couple and family sessions are available.',
+    'Every new client starts with a free 15 to 20 minute discovery call, with no obligation to continue.',
+    'Between sessions you can message me if you get stuck on an exercise. I reply when I can, though not instantly.',
+    'What you share stays confidential, with the narrow legal and safety exceptions set out in the privacy policy.',
+  ];
+
   const memberships = [
     'Member, American Psychological Association (Membership No. C2605770239)',
     'Member, Counselors Council of India',
-    'Registered Psychologist, National Council for Allied & Healthcare Professions (NCHAP)',
+    'Registered Psychologist, National Commission for Allied and Healthcare Professions (NCAHP)',
   ];
 
   return (
     <div className="px-5 sm:px-8">
+      <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(profileSchema)} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(breadcrumbSchema([{ name: 'About', path: '/about' }]))}
+      />
+
       {/* ——— Intro ——— */}
       <section className="max-w-6xl mx-auto pt-16 pb-20 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">About</p>
@@ -72,6 +104,11 @@ export default function AboutPage() {
           </h1>
         </div>
         <div className="mt-10 max-w-2xl space-y-6 text-lg text-ink-soft leading-relaxed">
+          <p>
+            I&apos;m a counselling psychologist with an MA in Psychology from Banaras Hindu
+            University, and I offer online therapy to people across India through Sthairyam, my
+            private practice. Sessions are held over video in English, Hindi, or a mix of the two.
+          </p>
           <p>
             Reaching out for therapy can feel like a big step. It can be confusing, scary,
             even overwhelming. Here, you will be heard, understood, and supported. My goal is to provide a
@@ -177,6 +214,99 @@ export default function AboutPage() {
                 ))}
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ——— Who I work with ——— */}
+      <section className="max-w-6xl mx-auto py-16 border-t border-ink/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Who I work with</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-ink leading-tight">
+              The people who <em className="text-pine">come here</em>
+            </h2>
+          </div>
+          <div className="lg:col-span-8 space-y-6 text-ink-soft leading-relaxed max-w-2xl">
+            <p>
+              Most of my work is with adults across India who are managing anxiety and stress, low
+              mood, relationship difficulties, burnout, questions of self-worth, or a period of change
+              that has unsettled more than they expected. Some arrive in real distress. Many are
+              functioning perfectly well on the outside and are simply tired of carrying something
+              alone.
+            </p>
+            <p>
+              I see individuals, and I also work with couples and families where the difficulty sits
+              between people rather than inside one person. You can read what each area of work
+              involves on{' '}
+              <Link
+                href="/how-i-can-help"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                how I can help
+              </Link>
+              .
+            </p>
+            <p>
+              You do not need a diagnosis, a crisis, or a tidy explanation to begin. Wanting to
+              understand yourself better is reason enough.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ——— How sessions work ——— */}
+      <section className="max-w-6xl mx-auto py-16 border-t border-ink/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">The practice</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-ink leading-tight">
+              How my sessions <em className="text-pine">actually run</em>
+            </h2>
+          </div>
+          <div className="lg:col-span-8 max-w-2xl">
+            <ul className="space-y-3">
+              {practiceFacts.map((fact, index) => (
+                <li key={index} className="text-ink-soft leading-relaxed flex gap-3">
+                  <span className="text-pine/50 shrink-0 mt-px">—</span>
+                  <span>{fact}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/what-to-expect" className="link-arrow mt-8">
+              What to expect, step by step
+              <ArrowUpRight size={15} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ——— Boundaries ——— */}
+      <section className="max-w-6xl mx-auto py-16 border-t border-ink/10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Scope &amp; boundaries</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-ink leading-tight">
+              What I <em className="text-pine">don&apos;t</em> do
+            </h2>
+          </div>
+          <div className="lg:col-span-8 space-y-5 text-ink-soft leading-relaxed max-w-2xl">
+            <p>
+              Being clear about the limits of this work is part of doing it responsibly. As a
+              counselling psychologist, I do not prescribe medication and I do not provide psychiatric
+              diagnosis. Where medication or a psychiatric assessment would serve you better, I will
+              say so and suggest a referral instead of taking the booking.
+            </p>
+            <p>
+              This is also not a crisis or emergency service, and I am not available between sessions
+              for urgent support. If you or someone you know is in immediate danger, please contact
+              Tele-MANAS on 14416, KIRAN on 1800-599-0019, or emergency services on 112.
+            </p>
+            <p>
+              I will not promise you a particular outcome. What I can commit to is a confidential
+              space, an evidence-informed approach, and an honest conversation with you about whether
+              the work we are doing is helping.
+            </p>
           </div>
         </div>
       </section>

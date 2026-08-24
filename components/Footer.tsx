@@ -4,8 +4,8 @@ import { siteConfig } from '@/lib/site';
 export default function Footer() {
   const quickLinks = [
     { name: 'About Me', href: '/about' },
-    { name: 'How I Can Help', href: '/support' },
-    { name: 'Book a Session', href: '/booking' },
+    { name: 'How I Can Help', href: '/how-i-can-help' },
+    { name: 'Book a Free Discovery Call', href: '/booking' },
     { name: 'What to Expect', href: '/what-to-expect' },
     { name: 'Resources', href: '/resources' },
     { name: 'Blog', href: '/blog' },
@@ -21,8 +21,8 @@ export default function Footer() {
             <p className="font-cinzel text-2xl tracking-wide mb-1">Sthairyam</p>
             <p className="text-cream/60 text-sm mb-5">by Bhavana Bulchandani</p>
             <p className="text-cream/70 text-sm leading-relaxed max-w-xs">
-              Counselling Psychologist creating a safe, supportive space for your healing journey.
-              Online sessions across India.
+              Bhavana Bulchandani is a counselling psychologist offering confidential online therapy
+              across India, for anxiety, stress, low mood, relationships, burnout and self-esteem.
             </p>
             <p className="text-cream/70 text-sm mt-5">
               <a href={`mailto:${siteConfig.email}`} className="underline underline-offset-4 decoration-cream/30 hover:decoration-cream">

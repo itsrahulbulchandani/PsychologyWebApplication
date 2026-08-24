@@ -8,7 +8,6 @@ export interface IntakeDetails {
   mobileNumber: string;
   emergencyContact?: string;
   address?: string;
-  identityProof?: string;
   preferredLanguage?: string;
   reasonForCounselling?: string;
   problemDuration?: string;
@@ -67,7 +66,6 @@ export function buildEventDescription(details: IntakeDetails, appointmentIso: st
     row('Contact Number', details.mobileNumber),
     row('Emergency Contact Number', details.emergencyContact),
     row('Address', details.address),
-    row('Identity Proof', details.identityProof),
     row('Preferred Language', details.preferredLanguage),
     row('Please state why you decided to come for counseling', details.reasonForCounselling),
     row('How long has this been a problem for you?', details.problemDuration),

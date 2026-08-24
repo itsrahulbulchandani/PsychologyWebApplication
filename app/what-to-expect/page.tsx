@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { breadcrumbSchema, jsonLdScript } from '@/lib/schema';
+import { pageMeta } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'What to Expect: Your First Therapy Session & Beyond',
+export const metadata: Metadata = pageMeta({
+  path: '/what-to-expect',
+  title: 'What to Expect: How Online Therapy Works, Step by Step',
   description:
-    'How online therapy works here: a free 15–20 minute discovery call, getting-to-know-you first sessions, 60-minute weekly sessions, homework between sessions, and strict confidentiality.',
-  alternates: { canonical: '/what-to-expect' },
-};
+    'The full process, from the free 15 to 20 minute discovery call to your first sessions, 60-minute weekly appointments, work between sessions, and how confidentiality is handled.',
+});
 
 export default function WhatToExpectPage() {
   const steps = [
@@ -71,17 +73,34 @@ export default function WhatToExpectPage() {
 
   return (
     <div className="px-5 sm:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={jsonLdScript(
+          breadcrumbSchema([{ name: 'What to expect', path: '/what-to-expect' }])
+        )}
+      />
+
       {/* ——— Header ——— */}
       <section className="max-w-6xl mx-auto pt-16 pb-16 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">The process</p>
         <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
           What to <em className="text-pine">expect</em>
         </h1>
-        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-xl">
-          Starting therapy can feel unfamiliar, and it&apos;s normal to have questions. This page
-          explains how we work together, so you can feel confident and supported from the very first
-          session.
+        <p className="mt-8 text-lg text-ink-soft leading-relaxed max-w-2xl">
+          Starting therapy can feel unfamiliar, and it&apos;s normal to have questions. This page sets
+          out exactly how online therapy works here, from the free discovery call through to ongoing
+          sessions, so you know what you are agreeing to before you book anything.
         </p>
+        <div className="mt-8 flex flex-col sm:flex-row gap-6 sm:gap-10">
+          <Link href="/blog/what-happens-in-your-first-therapy-session" className="link-arrow">
+            What happens in a first session
+            <ArrowUpRight size={15} />
+          </Link>
+          <Link href="/blog/how-online-therapy-works-in-india" className="link-arrow">
+            How online therapy works in India
+            <ArrowUpRight size={15} />
+          </Link>
+        </div>
       </section>
 
       {/* ——— Timeline ——— */}
@@ -120,9 +139,26 @@ export default function WhatToExpectPage() {
               <em className="text-pine">No pressure, no rush.</em>
             </p>
             <Link href="/booking" className="btn-primary mt-10">
-              Book your discovery call
+              Book a free discovery call
               <ArrowRight size={16} />
             </Link>
+            <p className="mt-8 text-ink-soft text-sm">
+              Want more detail first?{' '}
+              <Link
+                href="/faq"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                The FAQ
+              </Link>{' '}
+              covers fees, rescheduling and confidentiality, and{' '}
+              <Link
+                href="/how-i-can-help"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                how I can help
+              </Link>{' '}
+              describes each area of work.
+            </p>
           </div>
         </div>
       </section>

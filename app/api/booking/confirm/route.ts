@@ -78,7 +78,6 @@ export async function POST(request: NextRequest) {
       mobileNumber: clean(mobileNumber, 15),
       emergencyContact: clean(emergencyContact, 15),
       address: clean(body.address, 300),
-      identityProof: clean(body.identityProof, 60),
       preferredLanguage: clean(body.preferredLanguage, 60),
       reasonForCounselling: clean(body.reasonForCounselling, 1000),
       problemDuration: clean(body.problemDuration, 60),
