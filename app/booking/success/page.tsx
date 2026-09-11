@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { CheckCircle } from 'lucide-react';
 import { siteConfig } from '@/lib/site';
+import BookingConversion from '@/components/BookingConversion';
 
 export const metadata: Metadata = {
   title: 'Booking Confirmed',
@@ -32,6 +33,7 @@ export default function BookingSuccessPage({
 
   return (
     <div className="px-5 sm:px-8 py-16 lg:py-24">
+      <BookingConversion bookingId={bookingId} />
       <div className="max-w-2xl mx-auto">
         <div className="text-center animate-fadeInUp">
           <CheckCircle className="text-pine mx-auto mb-6" size={44} strokeWidth={1.5} />

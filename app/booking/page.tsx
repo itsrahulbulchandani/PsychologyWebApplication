@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Check, AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar from '@/components/BookingCalendar';
 import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
+import { trackEvent, BOOKING_CURRENCY } from '@/lib/analytics';
 
 export default function BookingPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
@@ -169,6 +170,11 @@ export default function BookingPage() {
   const handleDateTimeSelect = (date: Date, time: string) => {
     setSelectedDateTime({ date, time });
     setError('');
+    trackEvent('booking_slot_selected', {
+      item_id: selectedPackage?.id,
+      item_name: selectedPackage?.name,
+      slot_time: time,
+    });
   };
 
   const handleInputChange = (
@@ -255,6 +261,30 @@ export default function BookingPage() {
     setIsProcessing(true);
     setError('');
 
+    // Hand the package over to the confirmation page, which only gets a booking id.
+    try {
+      window.sessionStorage.setItem(
+        'sthairyam:booking:pending',
+        JSON.stringify({
+          id: selectedPackage.id,
+          name: selectedPackage.name,
+          price: selectedPackage.price,
+        })
+      );
+    } catch {
+      // Storage blocked: the conversion still fires, just without package detail.
+    }
+
+    // All validation passed and the request is about to go out.
+    trackEvent('begin_checkout', {
+      item_id: selectedPackage.id,
+      item_name: selectedPackage.name,
+      value: selectedPackage.price,
+      currency: BOOKING_CURRENCY,
+      mode: formData.mode,
+      consultation_type: formData.consultationType,
+    });
+
     try {
       // selectedDateTime.date is already the exact instant of the IST slot.
       const appointmentDateTime = selectedDateTime.date;
@@ -317,11 +347,21 @@ export default function BookingPage() {
       } else {
         setError(data.error || 'Failed to confirm booking. Please try again.');
         setIsProcessing(false);
+        trackEvent('booking_failed', {
+          item_id: selectedPackage.id,
+          item_name: selectedPackage.name,
+          failure_reason: data.error || 'confirm_rejected',
+        });
       }
     } catch (error) {
       console.error('Booking error:', error);
       setError('An error occurred. Please try again.');
       setIsProcessing(false);
+      trackEvent('booking_failed', {
+        item_id: selectedPackage.id,
+        item_name: selectedPackage.name,
+        failure_reason: 'request_error',
+      });
     }
   };
 
@@ -419,7 +459,18 @@ export default function BookingPage() {
             return (
             <div
               key={pkg.id}
-              onClick={() => { if (!isAvailable) return; setSelectedPackage(pkg); setError(''); }}
+              onClick={() => {
+                if (!isAvailable) return;
+                setSelectedPackage(pkg);
+                setError('');
+                trackEvent('select_item', {
+                  item_list_name: 'Booking packages',
+                  item_id: pkg.id,
+                  item_name: pkg.name,
+                  value: pkg.price,
+                  currency: BOOKING_CURRENCY,
+                });
+              }}
               aria-disabled={!isAvailable}
               className={`relative rounded-xl border transition-colors duration-200 overflow-hidden ${
                 isAvailable ? 'cursor-pointer bg-white' : 'cursor-not-allowed bg-cream-deep/60 opacity-70'
