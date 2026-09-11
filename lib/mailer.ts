@@ -5,6 +5,7 @@ type SmtpConfig = {
   port: number;
   user: string;
   pass: string;
+  from: string;
 };
 
 function getSmtpConfig(): SmtpConfig | null {
@@ -18,18 +19,48 @@ function getSmtpConfig(): SmtpConfig | null {
   const port = Number(portRaw);
   if (!Number.isFinite(port)) return null;
 
-  return { host, port, user, pass };
+  // Relays such as Resend authenticate with a fixed username ("resend") rather
+  // than an address, so the visible sender has to be configured separately.
+  // Falls back to the SMTP username, which is correct for direct Gmail SMTP.
+  const from = (process.env.MAIL_FROM || '').trim() || user;
+
+  return { host, port, user, pass, from };
+}
+
+/**
+ * Who gets notified when a booking comes in: THERAPIST_EMAIL plus any extra
+ * addresses in BOOKING_NOTIFY_EMAILS (comma-separated).
+ */
+export function getBookingNotificationRecipients(): string[] {
+  const recipients = [
+    process.env.THERAPIST_EMAIL,
+    ...(process.env.BOOKING_NOTIFY_EMAILS || '').split(','),
+  ]
+    .map((value) => (value || '').trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(recipients.map((value) => value.toLowerCase())));
 }
 
 export async function sendEmail(params: {
-  to: string;
+  to: string | string[];
   subject: string;
   text: string;
   html?: string;
+  replyTo?: string;
 }): Promise<{ success: boolean; error?: string }> {
   const config = getSmtpConfig();
   if (!config) {
+    console.error('Email not sent — SMTP is not configured (SMTP_HOST/PORT/USER/PASSWORD)', {
+      subject: params.subject,
+    });
     return { success: false, error: 'SMTP not configured' };
+  }
+
+  const to = Array.isArray(params.to) ? params.to.filter(Boolean) : [params.to];
+  if (to.length === 0) {
+    console.error('Email not sent — no recipients', { subject: params.subject });
+    return { success: false, error: 'No recipients' };
   }
 
   try {
@@ -43,22 +74,32 @@ export async function sendEmail(params: {
       },
     });
 
-    await transporter.sendMail({
-      from: config.user,
-      to: params.to,
+    const info = await transporter.sendMail({
+      from: config.from,
+      to,
       subject: params.subject,
       text: params.text,
       html: params.html,
+      replyTo: params.replyTo,
     });
+
+    if (info.rejected && info.rejected.length > 0) {
+      console.error('Email partially rejected by SMTP server', {
+        subject: params.subject,
+        rejected: info.rejected,
+      });
+    }
 
     return { success: true };
   } catch (err) {
-    return { success: false, error: err instanceof Error ? err.message : 'Failed to send email' };
+    const error = err instanceof Error ? err.message : 'Failed to send email';
+    console.error('Email send failed', { subject: params.subject, to, error });
+    return { success: false, error };
   }
 }
 
 export async function sendTherapistBookingEmail(params: {
-  therapistEmail: string;
+  therapistEmail: string | string[];
   clientName: string;
   clientEmail: string;
   packageName: string;
@@ -109,6 +150,7 @@ export async function sendTherapistBookingEmail(params: {
     subject: `New booking: ${params.clientName} (${readable})`,
     text,
     html,
+    replyTo: params.clientEmail,
   });
 }
 
@@ -165,6 +207,8 @@ export async function sendClientBookingEmail(params: {
     subject: `Session Confirmed: ${params.packageName} on ${readable}`,
     text,
     html,
+    // The sending domain has no mailbox, so replies must go to the therapist.
+    replyTo: params.therapistEmail,
   });
 }
 

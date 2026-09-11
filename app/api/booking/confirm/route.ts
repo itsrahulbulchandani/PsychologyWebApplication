@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { googleCalendarService } from '@/lib/googleCalendar';
-import { sendTherapistBookingEmail, sendClientBookingEmail } from '@/lib/mailer';
+import { sendTherapistBookingEmail, sendClientBookingEmail, getBookingNotificationRecipients } from '@/lib/mailer';
 import { buildEventDescription, generateBookingId, type IntakeDetails } from '@/lib/intake';
+import {
+  BOOKING_LEAD_TIME_MINUTES,
+  BOOKING_SLOT_HOURS,
+  getIstParts,
+  isSlotTooSoon,
+} from '@/lib/time';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,6 +103,35 @@ export async function POST(request: NextRequest) {
 
     // Discovery call is 20 minutes
     const startTime = new Date(appointmentDate);
+    if (isNaN(startTime.getTime())) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid appointment time' },
+        { status: 400 }
+      );
+    }
+
+    // The slot must be one of the published IST hours...
+    const istStart = getIstParts(startTime);
+    if (istStart.minutes !== 0 || !BOOKING_SLOT_HOURS.includes(istStart.hours)) {
+      return NextResponse.json(
+        { success: false, error: 'That time is outside available hours. Please pick another slot.' },
+        { status: 400 }
+      );
+    }
+
+    // ...and far enough ahead. A minute of slack absorbs clock skew between the
+    // browser that rendered the slot and this server.
+    const skewGraceMs = 60000;
+    if (isSlotTooSoon(startTime, new Date(Date.now() - skewGraceMs))) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Sessions must be booked at least ${BOOKING_LEAD_TIME_MINUTES / 60} hours in advance. Please pick a later slot.`,
+        },
+        { status: 400 }
+      );
+    }
+
     const endTime = new Date(startTime.getTime() + 20 * 60000);
 
     // Reject if the slot is already taken
@@ -129,10 +164,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const notifyRecipients = getBookingNotificationRecipients();
     const therapistEmail = process.env.THERAPIST_EMAIL;
-    if (therapistEmail) {
-      await sendTherapistBookingEmail({
-        therapistEmail,
+    if (notifyRecipients.length > 0 && therapistEmail) {
+      const therapistEmailResult = await sendTherapistBookingEmail({
+        therapistEmail: notifyRecipients,
         clientName: intake.name,
         clientEmail: intake.email,
         packageName,
@@ -145,7 +181,15 @@ export async function POST(request: NextRequest) {
         intakeSummary: buildEventDescription(intake, startTime.toISOString()),
       });
 
-      await sendClientBookingEmail({
+      if (!therapistEmailResult.success) {
+        console.error('Booking notification email failed', {
+          bookingId,
+          recipients: notifyRecipients,
+          error: therapistEmailResult.error,
+        });
+      }
+
+      const clientEmailResult = await sendClientBookingEmail({
         clientEmail: intake.email,
         clientName: intake.name,
         packageName,
@@ -155,8 +199,15 @@ export async function POST(request: NextRequest) {
         therapistEmail,
         bookingId,
       });
+
+      if (!clientEmailResult.success) {
+        console.error('Client confirmation email failed', {
+          bookingId,
+          error: clientEmailResult.error,
+        });
+      }
     } else {
-      console.log('⚠️ THERAPIST_EMAIL not set, skipping emails');
+      console.error('⚠️ THERAPIST_EMAIL not set, skipping booking emails', { bookingId });
     }
 
     return NextResponse.json({

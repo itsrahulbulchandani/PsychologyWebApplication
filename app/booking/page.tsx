@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { Check, AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar from '@/components/BookingCalendar';
+import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
 
 export default function BookingPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
@@ -203,6 +204,14 @@ export default function BookingPage() {
       return;
     }
 
+    if (isSlotTooSoon(selectedDateTime.date)) {
+      setError(
+        `That slot is no longer bookable. Please pick a time at least ${BOOKING_LEAD_TIME_MINUTES / 60} hours from now.`
+      );
+      setSelectedDateTime(null);
+      return;
+    }
+
     if (!consentSigned) {
       setError('Please read and sign the informed consent form');
       return;
@@ -247,14 +256,8 @@ export default function BookingPage() {
     setError('');
 
     try {
-      const appointmentDateTime = new Date(selectedDateTime.date);
-      const [time, period] = selectedDateTime.time.split(' ');
-      let [hours, minutes] = time.split(':').map(Number);
-
-      if (period === 'PM' && hours !== 12) hours += 12;
-      if (period === 'AM' && hours === 12) hours = 0;
-
-      appointmentDateTime.setHours(hours, minutes, 0, 0);
+      // selectedDateTime.date is already the exact instant of the IST slot.
+      const appointmentDateTime = selectedDateTime.date;
 
       // --- PhonePe payment flow disabled (only free Discovery Call is bookable for now) ---
       // const response = await fetch('/api/payment/initiate', {
@@ -830,12 +833,13 @@ export default function BookingPage() {
                       weekday: 'long',
                       year: 'numeric',
                       month: 'long',
-                      day: 'numeric'
+                      day: 'numeric',
+                      timeZone: 'Asia/Kolkata',
                     })}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Time</dt>
-                    <dd className="text-ink font-medium">{selectedDateTime.time}</dd>
+                    <dd className="text-ink font-medium">{selectedDateTime.time} IST</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Duration</dt>

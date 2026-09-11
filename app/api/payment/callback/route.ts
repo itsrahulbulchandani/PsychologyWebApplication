@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { phonePeService } from '@/lib/phonepe';
 import { googleCalendarService } from '@/lib/googleCalendar';
 import { getBooking } from '@/lib/bookingStore';
-import { sendTherapistBookingEmail, sendClientBookingEmail } from '@/lib/mailer';
+import { sendTherapistBookingEmail, sendClientBookingEmail, getBookingNotificationRecipients } from '@/lib/mailer';
 
 export const dynamic = 'force-dynamic';
 
@@ -60,9 +60,10 @@ export async function POST(request: NextRequest) {
         console.log('✅ Calendar event created successfully!');
 
         const therapistEmail = process.env.THERAPIST_EMAIL;
-        if (therapistEmail) {
+        const notifyRecipients = getBookingNotificationRecipients();
+        if (therapistEmail && notifyRecipients.length > 0) {
           const emailResult = await sendTherapistBookingEmail({
-            therapistEmail,
+            therapistEmail: notifyRecipients,
             clientName: bookingData.name,
             clientEmail: bookingData.email,
             packageName: bookingData.packageName,
@@ -155,9 +156,10 @@ export async function GET(request: NextRequest) {
         console.log('✅ Calendar event created successfully!');
 
         const therapistEmail = process.env.THERAPIST_EMAIL;
-        if (therapistEmail) {
+        const notifyRecipients = getBookingNotificationRecipients();
+        if (therapistEmail && notifyRecipients.length > 0) {
           const emailResult = await sendTherapistBookingEmail({
-            therapistEmail,
+            therapistEmail: notifyRecipients,
             clientName: bookingData.name,
             clientEmail: bookingData.email,
             packageName: bookingData.packageName,
