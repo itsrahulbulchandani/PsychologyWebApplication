@@ -8,7 +8,7 @@ import { pageMeta } from '@/lib/seo';
 export const metadata: Metadata = {
   ...pageMeta({
     path: '/',
-    title: 'Counselling Psychologist in India | Online Therapy',
+    title: 'Psychologist in Delhi | Online Therapy Across India',
     description: siteConfig.description,
   }),
   // The home page keeps the standalone brand title rather than the template.
@@ -102,7 +102,7 @@ export default function Home() {
       <section className="px-5 sm:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center pt-16 pb-20 lg:pt-24 lg:pb-28 animate-fadeInUp">
           <div className="lg:col-span-7">
-            <p className="eyebrow mb-6">Counselling Psychologist · Online across India</p>
+            <p className="eyebrow mb-6">Counselling Psychologist · Delhi NCR · Online across India</p>
             <p className="font-display text-[2.6rem] leading-[1.08] sm:text-6xl lg:text-[4.2rem] text-ink font-normal">
               Feel understood.
               <br />
@@ -112,13 +112,14 @@ export default function Home() {
             </p>
             {/* Kept as the H1 so the page still states the service to search engines */}
             <h1 className="mt-7 font-display text-2xl sm:text-3xl text-ink-soft leading-snug font-normal">
-              Online therapy with a counselling psychologist in India
+              Online therapy with a counselling psychologist in Delhi
             </h1>
             <p className="mt-7 text-lg text-ink-soft leading-relaxed max-w-xl">
               I&apos;m Bhavana Bulchandani, a counselling psychologist (MA Psychology, Banaras Hindu
-              University). I work online with people across India on anxiety, stress, low mood,
-              relationships, burnout and self-esteem, in confidential video sessions held in English
-              or Hindi. Everyone starts with a free 15 to 20 minute discovery call.
+              University) based in Delhi NCR. I work online with people in Delhi, Noida, Gurugram and
+              across India on anxiety, stress, low mood, relationships, burnout and self-esteem, in
+              confidential video sessions held in English or Hindi. Everyone starts with a free 15 to
+              20 minute discovery call.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
               <Link href="/booking" className="btn-primary">
@@ -156,7 +157,7 @@ export default function Home() {
             <span className="hidden sm:inline text-ink/20">·</span>
             <span>Member, Counselors Council of India</span>
             <span className="hidden sm:inline text-ink/20">·</span>
-            <span>Online sessions across India</span>
+            <span>Based in Delhi NCR &middot; online across India</span>
             <span className="hidden sm:inline text-ink/20">·</span>
             <span>Strictly confidential</span>
           </div>
@@ -299,6 +300,69 @@ export default function Home() {
                 <p className="font-display text-xl text-pine shrink-0">{fee.price}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ——— Where I work ——— */}
+      <section className="px-5 sm:px-8 py-4">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 border-t border-ink/10 pt-16">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Where I work</p>
+            <h2 className="font-display text-3xl sm:text-4xl text-ink leading-tight">
+              Based in Delhi NCR, <em className="text-pine">online everywhere</em>
+            </h2>
+          </div>
+          <div className="lg:col-span-8 max-w-2xl">
+            <p className="text-ink-soft leading-relaxed">
+              I live and work in Delhi NCR, and most of the people I see are in Delhi, Noida and
+              Gurugram. Because every session is held over video, there is no clinic to travel to and
+              no waiting room, and the same slots are open to anyone in India.
+            </p>
+            <div className="mt-8 space-y-4">
+              <Link
+                href="/psychologist-in-delhi"
+                className="group border-t border-ink/10 pt-4 flex items-start justify-between gap-6"
+              >
+                <span>
+                  <span className="font-display text-xl text-ink group-hover:text-pine transition-colors block">
+                    Psychologist in Delhi
+                  </span>
+                  <span className="text-ink-soft text-[15px]">
+                    Fees, availability, and why online works in this city
+                  </span>
+                </span>
+                <ArrowUpRight size={18} className="text-ink/30 group-hover:text-pine transition-colors shrink-0 mt-1.5" />
+              </Link>
+              <Link
+                href="/female-psychologist-in-delhi"
+                className="group border-t border-ink/10 pt-4 flex items-start justify-between gap-6"
+              >
+                <span>
+                  <span className="font-display text-xl text-ink group-hover:text-pine transition-colors block">
+                    Female psychologist in Delhi
+                  </span>
+                  <span className="text-ink-soft text-[15px]">
+                    If speaking to a woman is what would make this easier
+                  </span>
+                </span>
+                <ArrowUpRight size={18} className="text-ink/30 group-hover:text-pine transition-colors shrink-0 mt-1.5" />
+              </Link>
+              <Link
+                href="/online-therapy-india"
+                className="group border-t border-ink/10 last:border-b-0 pt-4 flex items-start justify-between gap-6"
+              >
+                <span>
+                  <span className="font-display text-xl text-ink group-hover:text-pine transition-colors block">
+                    Online therapy across India
+                  </span>
+                  <span className="text-ink-soft text-[15px]">
+                    How booking works, what you need, and what it costs
+                  </span>
+                </span>
+                <ArrowUpRight size={18} className="text-ink/30 group-hover:text-pine transition-colors shrink-0 mt-1.5" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

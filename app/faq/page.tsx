@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMeta({
   path: '/faq',
   title: 'Therapy FAQ: Sessions, Fees, Privacy & Online Counselling',
   description:
-    'Answers about online therapy in India: the free discovery call, session length and frequency, fees, rescheduling, confidentiality, and how to know whether therapy is right for you.',
+    'Answers about online therapy with a counselling psychologist based in Delhi NCR: the free discovery call, session length and frequency, fees, booking times, rescheduling, confidentiality, and how to know whether therapy is right for you.',
 });
 
 export default function FAQPage() {

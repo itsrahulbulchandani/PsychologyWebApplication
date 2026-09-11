@@ -198,6 +198,32 @@ export const faqGroups: FAQGroup[] = [
     ],
   },
   {
+    eyebrow: 'Location & availability',
+    heading: 'Where I am, and when',
+    items: [
+      {
+        question: 'Where are you based?',
+        answer:
+          'I am based in Delhi NCR. Sessions are held online over video rather than in a consulting room, so most clients are in Delhi, Noida and Gurugram, and the rest are spread across India and occasionally abroad.',
+      },
+      {
+        question: 'Do you offer in-person sessions in Delhi?',
+        answer:
+          'No. This is an online-only practice and there is no walk-in address. That keeps evening slots possible and removes the commute, which in Delhi is the most common reason therapy quietly stops. If in-person work matters to you, say so on the discovery call and I will suggest a referral instead of taking the booking.',
+      },
+      {
+        question: 'What times can I book?',
+        answer:
+          'The calendar offers slots from 9 am to 11 pm Indian Standard Time, seven days a week, and shows only the times that are genuinely free. Late-evening slots are the most heavily booked, so they tend to go first.',
+      },
+      {
+        question: 'Which languages are sessions held in?',
+        answer:
+          'English, Hindi, or the mix of the two most people actually speak. You do not need to decide in advance and you can switch mid-sentence.',
+      },
+    ],
+  },
+  {
     eyebrow: 'Privacy & safety',
     heading: 'Confidentiality and limits',
     items: [

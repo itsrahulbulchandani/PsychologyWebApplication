@@ -8,9 +8,9 @@ import { pageMeta } from '@/lib/seo';
 
 export const metadata: Metadata = pageMeta({
   path: '/about',
-  title: 'About Bhavana Bulchandani, Counselling Psychologist',
+  title: 'About Bhavana Bulchandani, Counselling Psychologist in Delhi',
   description:
-    'Bhavana Bulchandani is a counselling psychologist with an MA in Psychology from Banaras Hindu University. Her training, therapeutic approach, who she works with, and how online sessions are run.',
+    'Bhavana Bulchandani is a counselling psychologist based in Delhi NCR, with an MA in Psychology from Banaras Hindu University. Her training, therapeutic approach, who she works with, and how online sessions are run.',
   ogType: 'profile',
 });
 
@@ -62,7 +62,7 @@ export default function AboutPage() {
   ];
 
   const practiceFacts = [
-    'All sessions are online, over video, so you can attend from anywhere in India.',
+    'I am based in Delhi NCR, and all sessions are online, over video, so you can attend from anywhere in India.',
     'Sessions run up to 60 minutes, usually weekly to begin with, and the frequency is reviewed as things change.',
     'Sessions are held in English, Hindi, or a comfortable mix of the two.',
     'Individual, couple and family sessions are available.',
@@ -106,8 +106,9 @@ export default function AboutPage() {
         <div className="mt-10 max-w-2xl space-y-6 text-lg text-ink-soft leading-relaxed">
           <p>
             I&apos;m a counselling psychologist with an MA in Psychology from Banaras Hindu
-            University, and I offer online therapy to people across India through Sthairyam, my
-            private practice. Sessions are held over video in English, Hindi, or a mix of the two.
+            University, based in Delhi NCR. I offer online therapy to people in Delhi, Noida,
+            Gurugram and across India through Sthairyam, my private practice. Sessions are held over
+            video in English, Hindi, or a mix of the two.
           </p>
           <p>
             Reaching out for therapy can feel like a big step. It can be confusing, scary,

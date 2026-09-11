@@ -5,9 +5,9 @@ import { pageMeta } from '@/lib/seo';
 
 export const metadata: Metadata = pageMeta({
   path: '/booking',
-  title: 'Book a Free Discovery Call with a Counselling Psychologist',
+  title: 'Book an Online Therapy Session | Free Discovery Call',
   description:
-    'Book a free 15 to 20 minute online discovery call with counselling psychologist Bhavana Bulchandani. No payment, no obligation. Sessions from ₹1,200, online across India.',
+    'Book a free 15 to 20 minute online discovery call with Bhavana Bulchandani, a counselling psychologist based in Delhi NCR. No payment, no obligation. Slots 9 am to 11 pm IST, sessions from ₹1,200, online across India.',
 });
 
 const reservationSchema = {
