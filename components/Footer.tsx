@@ -4,10 +4,18 @@ import { siteConfig } from '@/lib/site';
 export default function Footer() {
   const quickLinks = [
     { name: 'About Me', href: '/about' },
+    { name: 'Psychologist in Delhi', href: '/psychologist-in-delhi' },
+    { name: 'Female Psychologist in Delhi', href: '/female-psychologist-in-delhi' },
+    { name: 'Online Therapy in India', href: '/online-therapy-india' },
     { name: 'How I Can Help', href: '/how-i-can-help' },
+    { name: 'Therapy for Anxiety', href: '/therapy-for-anxiety' },
+    { name: 'Therapy for Depression', href: '/therapy-for-depression' },
+    { name: 'Stress & Burnout', href: '/therapy-for-stress-and-burnout' },
+    { name: 'Relationship Counselling', href: '/relationship-counselling' },
     { name: 'Book a Free Discovery Call', href: '/booking' },
     { name: 'What to Expect', href: '/what-to-expect' },
     { name: 'Resources', href: '/resources' },
+    { name: 'Therapy Guides', href: '/guides' },
     { name: 'Blog', href: '/blog' },
     { name: 'FAQ', href: '/faq' },
   ];
@@ -21,8 +29,9 @@ export default function Footer() {
             <p className="font-cinzel text-2xl tracking-wide mb-1">Sthairyam</p>
             <p className="text-cream/60 text-sm mb-5">by Bhavana Bulchandani</p>
             <p className="text-cream/70 text-sm leading-relaxed max-w-xs">
-              Bhavana Bulchandani is a counselling psychologist offering confidential online therapy
-              across India, for anxiety, stress, low mood, relationships, burnout and self-esteem.
+              Bhavana Bulchandani is a counselling psychologist based in Delhi NCR, offering
+              confidential online therapy across India for anxiety, stress, low mood, relationships,
+              burnout and self-esteem.
             </p>
             <p className="text-cream/70 text-sm mt-5">
               <a href={`mailto:${siteConfig.email}`} className="underline underline-offset-4 decoration-cream/30 hover:decoration-cream">

@@ -9,7 +9,7 @@ export const metadata: Metadata = pageMeta({
   path: '/how-i-can-help',
   title: 'How I Can Help: Therapy for Anxiety, Stress & Relationships',
   description:
-    'Online counselling with Bhavana Bulchandani for anxiety, stress, low mood, relationship difficulties, burnout, self-esteem and life transitions. What each area looks like, and how therapy helps.',
+    'Online counselling with Bhavana Bulchandani, a counselling psychologist based in Delhi NCR, for anxiety, stress, low mood, relationship difficulties, burnout, self-esteem and life transitions. What each area looks like, and how therapy helps.',
 });
 
 export default function HowICanHelpPage() {
@@ -30,6 +30,7 @@ export default function HowICanHelpPage() {
         'In sessions we begin by mapping your particular pattern: what sets it off, what it promises you, and what it costs. From there the work usually combines cognitive behavioural techniques, which examine and test anxious predictions rather than simply arguing with them, with grounding and mindfulness practices that lower the physical baseline enough for the thinking work to be possible. Where avoidance has narrowed your life, we rebuild it in steps small enough to actually take.',
       ],
       reading: [
+        { label: 'Therapy for anxiety', href: '/therapy-for-anxiety' },
         { label: 'Anxiety vs stress: what is the difference?', href: '/blog/anxiety-vs-stress-whats-the-difference' },
         { label: 'How therapy helps with overthinking', href: '/blog/therapy-for-overthinking-and-anxiety' },
       ],
@@ -51,6 +52,7 @@ export default function HowICanHelpPage() {
         'If low mood has lasted for weeks, is severe, or is accompanied by thoughts of harming yourself, that is a reason to seek help promptly rather than to wait, and it may be appropriate to involve a doctor or psychiatrist alongside counselling.',
       ],
       reading: [
+        { label: 'Therapy for depression and low mood', href: '/therapy-for-depression' },
         { label: 'How do I know if I need therapy?', href: '/blog/how-do-i-know-if-i-need-therapy' },
       ],
     },
@@ -72,6 +74,7 @@ export default function HowICanHelpPage() {
         'Family sessions are also available where the difficulty sits across a wider set of relationships.',
       ],
       reading: [
+        { label: 'Relationship counselling', href: '/relationship-counselling' },
         { label: 'When should you consider couples therapy?', href: '/blog/when-should-you-consider-couples-therapy' },
       ],
     },
@@ -91,6 +94,7 @@ export default function HowICanHelpPage() {
         'The work is practical. We stabilise the basics first, then map which pressures are genuinely structural and which are being maintained by beliefs such as "if I stop, everything falls apart". Boundaries come next, which is usually the hardest part, along with learning to tolerate the guilt that follows a no. Where the honest conclusion is that something external has to change, therapy is a good place to think that through without panic.',
       ],
       reading: [
+        { label: 'Therapy for stress and burnout', href: '/therapy-for-stress-and-burnout' },
         { label: 'Signs of burnout and how therapy helps', href: '/blog/signs-of-burnout-and-how-therapy-helps' },
       ],
     },
