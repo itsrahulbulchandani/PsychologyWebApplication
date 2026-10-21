@@ -157,7 +157,12 @@ export default function Home() {
             <span className="hidden sm:inline text-ink/20">·</span>
             <span>Member, Counselors Council of India</span>
             <span className="hidden sm:inline text-ink/20">·</span>
-            <span>Based in Delhi NCR &middot; online across India</span>
+            <span>
+              Based in Delhi NCR &middot;{' '}
+              <Link href="/online-therapy-india" className="underline underline-offset-4 decoration-ink/20 hover:text-pine hover:decoration-pine">
+                online counselling across India
+              </Link>
+            </span>
             <span className="hidden sm:inline text-ink/20">·</span>
             <span>Strictly confidential</span>
           </div>

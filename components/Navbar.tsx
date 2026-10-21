@@ -13,6 +13,7 @@ export default function Navbar() {
   const navItems = [
     { name: 'About', href: '/about' },
     { name: 'How I Can Help', href: '/how-i-can-help' },
+    { name: 'Online Counselling', href: '/online-therapy-india' },
     { name: 'What to Expect', href: '/what-to-expect' },
     { name: 'Blog', href: '/blog' },
     { name: 'FAQ', href: '/faq' },
@@ -31,18 +32,18 @@ export default function Navbar() {
               <Image src="/logo.png" alt="Sthairyam" width={34} height={34} />
               <span className="text-lg font-bold font-cinzel text-pine tracking-wide">Sthairyam</span>
             </div>
-            <span className="text-[10px] text-ink-soft tracking-[0.14em] uppercase ml-[42px] -mt-0.5">
+            <span className="whitespace-nowrap text-[10px] text-ink-soft tracking-[0.14em] uppercase ml-[42px] -mt-0.5">
               by Bhavana Bulchandani
             </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             {navItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
-                className={`text-[13px] tracking-wide transition-colors duration-200 ${
+                className={`whitespace-nowrap text-[13px] tracking-wide transition-colors duration-200 ${
                   isActive(item.href)
                     ? 'text-pine font-semibold'
                     : 'text-ink-soft hover:text-pine'
@@ -53,7 +54,7 @@ export default function Navbar() {
             ))}
             <Link
               href="/booking"
-              className="inline-flex items-center px-5 py-2 border border-pine text-pine rounded-full text-[13px] font-medium tracking-wide hover:bg-pine hover:text-cream transition-colors duration-200"
+              className="whitespace-nowrap inline-flex items-center px-5 py-2 border border-pine text-pine rounded-full text-[13px] font-medium tracking-wide hover:bg-pine hover:text-cream transition-colors duration-200"
             >
               Book a Free Call
             </Link>

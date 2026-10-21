@@ -33,7 +33,12 @@ export default function Footer() {
               confidential online therapy across India for anxiety, stress, low mood, relationships,
               burnout and self-esteem.
             </p>
-            <p className="text-cream/70 text-sm mt-5">
+            <p className="text-sm mt-5">
+              <Link href="/online-therapy-india" className="text-cream underline underline-offset-4 decoration-cream/30 hover:decoration-cream">
+                Online counselling available across India
+              </Link>
+            </p>
+            <p className="text-cream/70 text-sm mt-3">
               <a href={`mailto:${siteConfig.email}`} className="underline underline-offset-4 decoration-cream/30 hover:decoration-cream">
                 {siteConfig.email}
               </a>
