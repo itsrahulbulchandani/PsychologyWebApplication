@@ -1,14 +1,44 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Check, AlertCircle, ArrowRight } from 'lucide-react';
-import BookingCalendar from '@/components/BookingCalendar';
+import { AlertCircle, ArrowRight } from 'lucide-react';
+import BookingCalendar, { type SlotSource } from '@/components/BookingCalendar';
 import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
+import { normalizeMobile } from '@/lib/phone';
 import { trackEvent, BOOKING_CURRENCY, BOOKING_HANDOFF_KEY } from '@/lib/analytics';
 
+// The only package bookable online; paid sessions are arranged after this call.
+const DISCOVERY_CALL = {
+  id: 'discovery',
+  name: 'Discovery Call',
+  price: 0,
+  displayPrice: 'Free',
+};
+
+type FieldName =
+  | 'name'
+  | 'email'
+  | 'mobile'
+  | 'emergencyContact'
+  | 'preferredLanguage'
+  | 'problemDuration'
+  | 'reasonForCounselling'
+  | 'psychiatricMedication'
+  | 'consent';
+
+type FieldErrors = Partial<Record<FieldName, string>>;
+
+function FieldError({ name, message }: { name: FieldName; message?: string }) {
+  if (!message) return null;
+  return (
+    <p id={`${name}-error`} className="mt-1.5 text-xs text-red-700">
+      {message}
+    </p>
+  );
+}
+
 export default function BookingPage() {
-  const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [selectedDateTime, setSelectedDateTime] = useState<{ date: Date; time: string } | null>(null);
   const [showConsentForm, setShowConsentForm] = useState(false);
   const [consentSigned, setConsentSigned] = useState(false);
@@ -30,25 +60,34 @@ export default function BookingPage() {
   const [concerns, setConcerns] = useState<string[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [showStickyCta, setShowStickyCta] = useState(false);
+  const calendarRef = useRef<HTMLElement>(null);
+  const formRef = useRef<HTMLElement>(null);
+  const formStarted = useRef(false);
 
-  const packages = [
-    {
-      id: 'discovery',
-      name: "Discovery Call",
-      price: 0,
-      displayPrice: "Free",
-      originalPrice: null,
-      sessions: 1,
-      perSession: "Free",
-      features: [
-        "15–20 minute call",
-        "Share your concerns and ask questions",
-        "See if my approach is a good fit",
-        "No obligation to start therapy"
-      ],
-      popular: false,
-      discount: null
-    },
+  // On a phone the calendar can start below the fold. Only offer the shortcut
+  // while it is still ahead: once past it, the bar would sit over the page's
+  // footer, which carries the crisis helpline numbers.
+  useEffect(() => {
+    const calendar = calendarRef.current;
+    if (!calendar) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) =>
+        setShowStickyCta(entry.boundingClientRect.top > 0 && entry.intersectionRatio < 0.25),
+      { threshold: [0, 0.25] }
+    );
+    observer.observe(calendar);
+    return () => observer.disconnect();
+  }, []);
+
+  // The form opens below the calendar, out of sight on a phone.
+  useEffect(() => {
+    if (selectedDateTime) formRef.current?.scrollIntoView({ block: 'start' });
+  }, [selectedDateTime]);
+
+  const sessionPackages = [
     {
       id: 'single',
       name: "Single Session",
@@ -116,7 +155,7 @@ export default function BookingPage() {
     {
       label: 'Where',
       value:
-        'Online, over Google Meet. You will get a confirmation email and a calendar invite with the link as soon as you confirm below.',
+        'Online, over Google Meet. You will get a confirmation email and a calendar invite with the link as soon as you confirm your booking.',
     },
     {
       label: 'Any obligation?',
@@ -167,13 +206,23 @@ export default function BookingPage() {
     "Self-control difficulties",
   ];
 
-  const handleDateTimeSelect = (date: Date, time: string) => {
+  const handleDateTimeSelect = (date: Date, time: string, source: SlotSource) => {
     setSelectedDateTime({ date, time });
     setError('');
     trackEvent('booking_slot_selected', {
-      item_id: selectedPackage?.id,
-      item_name: selectedPackage?.name,
+      item_id: DISCOVERY_CALL.id,
+      item_name: DISCOVERY_CALL.name,
       slot_time: time,
+      slot_source: source,
+    });
+  };
+
+  const clearFieldError = (name: string) => {
+    setFieldErrors((prev) => {
+      if (!(name in prev)) return prev;
+      const next = { ...prev };
+      delete next[name as FieldName];
+      return next;
     });
   };
 
@@ -184,6 +233,64 @@ export default function BookingPage() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+    clearFieldError(e.target.name);
+  };
+
+  const handleFormFocus = () => {
+    if (formStarted.current) return;
+    formStarted.current = true;
+    trackEvent('booking_form_started', {
+      item_id: DISCOVERY_CALL.id,
+      item_name: DISCOVERY_CALL.name,
+    });
+  };
+
+  const fieldProps = (name: FieldName) => ({
+    id: name,
+    'aria-invalid': fieldErrors[name] ? true : undefined,
+    'aria-describedby': fieldErrors[name] ? `${name}-error` : undefined,
+  });
+
+  const inputClass = (name: FieldName) =>
+    `input-field${fieldErrors[name] ? ' border-red-400' : ''}`;
+
+  // Errors are built in the order the fields appear, so the first is the
+  // highest one on the page.
+  const validateForm = (): FieldErrors => {
+    const errors: FieldErrors = {};
+
+    if (!formData.name.trim()) errors.name = 'Please enter your name';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      errors.email = 'Please enter a valid email address';
+    }
+    if (!/^\d{10}$/.test(normalizeMobile(formData.mobile))) {
+      errors.mobile = 'Please enter a valid 10-digit mobile number';
+    }
+    if (!/^\d{10}$/.test(normalizeMobile(formData.emergencyContact))) {
+      errors.emergencyContact = 'Please enter a valid 10-digit emergency contact number';
+    }
+    if (!formData.preferredLanguage) {
+      errors.preferredLanguage = 'Please select your preferred language';
+    }
+    if (!formData.problemDuration) {
+      errors.problemDuration = 'Please tell us how long this has been a problem for you';
+    }
+    if (!formData.reasonForCounselling.trim()) {
+      errors.reasonForCounselling = 'Please tell us why you decided to come for counselling';
+    }
+    if (!formData.psychiatricMedication) {
+      errors.psychiatricMedication = 'Please tell us whether you are taking any psychiatric medication';
+    }
+    if (!consentSigned) errors.consent = 'Please read and sign the informed consent form';
+
+    return errors;
+  };
+
+  const focusField = (name: string) => {
+    const field = document.getElementById(name);
+    if (!field) return;
+    field.focus({ preventScroll: true });
+    field.scrollIntoView({ block: 'center' });
   };
 
   const toggleConcern = (concern: string) => {
@@ -195,66 +302,25 @@ export default function BookingPage() {
   };
 
   const handlePayment = async () => {
-    if (!formData.name || !formData.email || !formData.mobile) {
-      setError('Please fill in all required details');
-      return;
-    }
-
-    if (!selectedPackage) {
-      setError('Please select a package');
-      return;
-    }
-
-    if (!selectedDateTime) {
-      setError('Please select date and time');
-      return;
-    }
+    if (!selectedDateTime) return;
 
     if (isSlotTooSoon(selectedDateTime.date)) {
       setError(
         `That slot is no longer bookable. Please pick a time at least ${BOOKING_LEAD_TIME_MINUTES / 60} hours from now.`
       );
       setSelectedDateTime(null);
+      document.getElementById('pick-a-time')?.scrollIntoView({ block: 'start' });
       return;
     }
 
-    if (!consentSigned) {
-      setError('Please read and sign the informed consent form');
-      return;
-    }
+    const errors = validateForm();
+    setFieldErrors(errors);
 
-    if (!/^\d{10}$/.test(formData.mobile)) {
-      setError('Please enter a valid 10-digit mobile number');
-      return;
-    }
-
-    if (!/^\d{10}$/.test(formData.emergencyContact)) {
-      setError('Please enter a valid 10-digit emergency contact number');
-      return;
-    }
-
-    if (!formData.preferredLanguage) {
-      setError('Please select your preferred language');
-      return;
-    }
-
-    if (!formData.reasonForCounselling.trim()) {
-      setError('Please tell us why you decided to come for counselling');
-      return;
-    }
-
-    if (!formData.problemDuration) {
-      setError('Please tell us how long this has been a problem for you');
-      return;
-    }
-
-    if (!formData.psychiatricMedication) {
-      setError('Please tell us whether you are taking any psychiatric medication');
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Please enter a valid email address');
+    const invalidFields = Object.keys(errors);
+    if (invalidFields.length > 0) {
+      // Field names only: what someone typed never goes to analytics.
+      trackEvent('booking_form_error', { fields: invalidFields.join(',') });
+      focusField(invalidFields[0]);
       return;
     }
 
@@ -263,9 +329,9 @@ export default function BookingPage() {
 
     // All validation passed and the request is about to go out.
     trackEvent('begin_checkout', {
-      item_id: selectedPackage.id,
-      item_name: selectedPackage.name,
-      value: selectedPackage.price,
+      item_id: DISCOVERY_CALL.id,
+      item_name: DISCOVERY_CALL.name,
+      value: DISCOVERY_CALL.price,
       currency: BOOKING_CURRENCY,
       mode: formData.mode,
       consultation_type: formData.consultationType,
@@ -280,9 +346,9 @@ export default function BookingPage() {
       //   method: 'POST',
       //   headers: { 'Content-Type': 'application/json' },
       //   body: JSON.stringify({
-      //     amount: selectedPackage.price,
+      //     amount: DISCOVERY_CALL.price,
       //     mobileNumber: formData.mobile,
-      //     packageName: selectedPackage.name,
+      //     packageName: DISCOVERY_CALL.name,
       //     appointmentDate: appointmentDateTime.toISOString(),
       //     email: formData.email,
       //     name: formData.name,
@@ -302,12 +368,12 @@ export default function BookingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          packageName: selectedPackage.name,
+          packageName: DISCOVERY_CALL.name,
           appointmentDate: appointmentDateTime.toISOString(),
-          email: formData.email,
+          email: formData.email.trim(),
           name: formData.name,
-          mobileNumber: formData.mobile,
-          emergencyContact: formData.emergencyContact,
+          mobileNumber: normalizeMobile(formData.mobile),
+          emergencyContact: normalizeMobile(formData.emergencyContact),
           address: formData.address,
           preferredLanguage: formData.preferredLanguage,
           reasonForCounselling: formData.reasonForCounselling,
@@ -334,9 +400,9 @@ export default function BookingPage() {
             BOOKING_HANDOFF_KEY,
             JSON.stringify({
               bookingId: data.bookingId,
-              id: selectedPackage.id,
-              name: selectedPackage.name,
-              price: selectedPackage.price,
+              id: DISCOVERY_CALL.id,
+              name: DISCOVERY_CALL.name,
+              price: DISCOVERY_CALL.price,
             })
           );
         } catch {
@@ -350,8 +416,8 @@ export default function BookingPage() {
         setError(data.error || 'Failed to confirm booking. Please try again.');
         setIsProcessing(false);
         trackEvent('booking_failed', {
-          item_id: selectedPackage.id,
-          item_name: selectedPackage.name,
+          item_id: DISCOVERY_CALL.id,
+          item_name: DISCOVERY_CALL.name,
           failure_reason: data.error || 'confirm_rejected',
         });
       }
@@ -360,8 +426,8 @@ export default function BookingPage() {
       setError('An error occurred. Please try again.');
       setIsProcessing(false);
       trackEvent('booking_failed', {
-        item_id: selectedPackage.id,
-        item_name: selectedPackage.name,
+        item_id: DISCOVERY_CALL.id,
+        item_name: DISCOVERY_CALL.name,
         failure_reason: 'request_error',
       });
     }
@@ -383,7 +449,7 @@ export default function BookingPage() {
       </section>
 
       {/* ——— Session facts ——— */}
-      <section className="max-w-6xl mx-auto mb-16">
+      <section className="max-w-6xl mx-auto mb-12">
         <div className="border-t border-b border-ink/10 py-5 flex flex-wrap justify-center lg:justify-between gap-x-10 gap-y-2 text-[13px] tracking-wide text-ink-soft">
           <span>Free 15–20 minute discovery call</span>
           <span className="hidden sm:inline text-ink/20">·</span>
@@ -395,159 +461,48 @@ export default function BookingPage() {
         </div>
       </section>
 
-      {/* ——— What the discovery call is ——— */}
-      <section className="max-w-6xl mx-auto mb-20">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-4">
-            <p className="eyebrow mb-4">Before you book</p>
-            <h2 className="font-display text-2xl sm:text-3xl text-ink leading-snug">
-              What the discovery call <em className="text-pine">actually is</em>
-            </h2>
-            <p className="mt-5 text-ink-soft text-[15px] leading-relaxed">
-              It is a short conversation, not a therapy session, and not a sales call. Its only
-              purpose is to work out whether we are a good fit.
-            </p>
-          </div>
-
-          <div className="lg:col-span-8 max-w-2xl">
-            <dl className="space-y-0">
-              {discoveryFacts.map((fact, index) => (
-                <div
-                  key={index}
-                  className="border-t border-ink/10 last:border-b py-5 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-6"
-                >
-                  <dt className="sm:col-span-4 text-[11px] uppercase tracking-[0.18em] text-ink-soft font-semibold pt-1">
-                    {fact.label}
-                  </dt>
-                  <dd className="sm:col-span-8 text-ink-soft text-[15px] leading-relaxed">
-                    {fact.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-7 text-ink-soft text-[15px] leading-relaxed">
-              Want the full session-by-session process first?{' '}
-              <Link
-                href="/what-to-expect"
-                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
-              >
-                Read what to expect
-              </Link>
-              , or{' '}
-              <Link
-                href="/faq"
-                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
-              >
-                the FAQ
-              </Link>{' '}
-              for fees, rescheduling and confidentiality.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* ——— Step 1: Choose Package ——— */}
-      <section className="max-w-6xl mx-auto mb-20">
+      {/* ——— Step 1: Pick a time ——— */}
+      <section id="pick-a-time" ref={calendarRef} className="max-w-4xl mx-auto mb-20 scroll-mt-24">
         <div className="flex items-baseline gap-4 mb-10">
           <span className="font-display text-sm text-clay">01</span>
-          <h2 className="font-display text-2xl sm:text-3xl text-ink">Choose your package</h2>
+          <h2 className="font-display text-2xl sm:text-3xl text-ink">Pick a time</h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {packages.map((pkg) => {
-            // Only the free Discovery Call is bookable right now.
-            // Paid packages are shown for reference but locked until after the discovery call.
-            const isAvailable = pkg.id === 'discovery';
-            const isSelected = selectedPackage?.id === pkg.id;
-            return (
-            <div
-              key={pkg.id}
-              onClick={() => {
-                if (!isAvailable) return;
-                setSelectedPackage(pkg);
-                setError('');
-                trackEvent('select_item', {
-                  item_list_name: 'Booking packages',
-                  item_id: pkg.id,
-                  item_name: pkg.name,
-                  value: pkg.price,
-                  currency: BOOKING_CURRENCY,
-                });
-              }}
-              aria-disabled={!isAvailable}
-              className={`relative rounded-xl border transition-colors duration-200 overflow-hidden ${
-                isAvailable ? 'cursor-pointer bg-white' : 'cursor-not-allowed bg-cream-deep/60 opacity-70'
-              } ${
-                isSelected ? 'border-pine border-2' : 'border-ink/15 hover:border-pine/50'
-              }`}
-            >
-              {!isAvailable && (
-                <div className="border-b border-ink/10 px-5 py-2 text-[11px] uppercase tracking-[0.14em] text-ink-soft text-center">
-                  After your discovery call
-                </div>
-              )}
-
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-2 mb-1">
-                  <h3 className="font-display text-xl text-ink">{pkg.name}</h3>
-                  {isSelected && <Check className="text-pine shrink-0 mt-1" size={18} />}
-                </div>
-                {pkg.popular && isAvailable && (
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-clay font-semibold mb-2">
-                    Most popular
-                  </p>
-                )}
-                <div className="mb-5 mt-2">
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-display text-3xl text-pine">{pkg.displayPrice}</span>
-                    {pkg.originalPrice && (
-                      <span className="text-sm text-ink/40 line-through">{pkg.originalPrice}</span>
-                    )}
-                  </div>
-                  {pkg.id !== 'discovery' && (
-                    <p className="text-ink-soft text-xs mt-1">{pkg.perSession} per session</p>
-                  )}
-                  {pkg.discount && (
-                    <p className="text-clay text-xs font-medium mt-1">{pkg.discount}</p>
-                  )}
-                </div>
-
-                <ul className="space-y-2 border-t border-ink/10 pt-4">
-                  {pkg.features.map((feature, i) => (
-                    <li key={i} className="flex items-start text-[13px] text-ink-soft leading-relaxed">
-                      <span className="text-pine/50 mr-2 shrink-0">—</span>
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            );
-          })}
-        </div>
+        {error && !selectedDateTime && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex items-start">
+            <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5 mr-3" size={20} />
+            <p className="text-red-800 text-sm">{error}</p>
+          </div>
+        )}
+        <BookingCalendar onDateTimeSelect={handleDateTimeSelect} />
       </section>
 
-      {/* ——— Step 2: Select Date & Time ——— */}
-      {selectedPackage && (
-        <section className="max-w-4xl mx-auto mb-20">
+      {/* ——— Step 2: Details & Consent ——— */}
+      {selectedDateTime && (
+        <section ref={formRef} className="max-w-3xl mx-auto mb-20 scroll-mt-24">
           <div className="flex items-baseline gap-4 mb-10">
             <span className="font-display text-sm text-clay">02</span>
-            <h2 className="font-display text-2xl sm:text-3xl text-ink">Select date &amp; time</h2>
-          </div>
-          <BookingCalendar
-            onDateTimeSelect={handleDateTimeSelect}
-            selectedPackage={selectedPackage}
-          />
-        </section>
-      )}
-
-      {/* ——— Step 3: Details & Consent ——— */}
-      {selectedPackage && selectedDateTime && (
-        <section className="max-w-3xl mx-auto mb-20">
-          <div className="flex items-baseline gap-4 mb-10">
-            <span className="font-display text-sm text-clay">03</span>
             <h2 className="font-display text-2xl sm:text-3xl text-ink">Your details &amp; consent</h2>
           </div>
-          <div className="bg-white border border-ink/15 rounded-xl p-6 sm:p-10">
+          <p className="-mt-6 mb-8 text-sm text-ink-soft">
+            Your call:{' '}
+            <span className="font-medium text-ink">
+              {selectedDateTime.date.toLocaleDateString('en-IN', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                timeZone: 'Asia/Kolkata',
+              })}
+              , {selectedDateTime.time} IST
+            </span>
+            .{' '}
+            <a
+              href="#pick-a-time"
+              className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+            >
+              Change
+            </a>
+          </p>
+          <div className="bg-white border border-ink/15 rounded-xl p-6 sm:p-10" onFocus={handleFormFocus}>
             <div className="space-y-8">
               {/* Client Information */}
               <div>
@@ -557,72 +512,86 @@ export default function BookingPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="name" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Full Name *
                     </label>
                     <input
                       type="text"
                       name="name"
+                      autoComplete="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('name')}
                       placeholder="Your full name"
                       required
+                      {...fieldProps('name')}
                     />
+                    <FieldError name="name" message={fieldErrors.name} />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="email" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Email Address *
                     </label>
                     <input
                       type="email"
                       name="email"
+                      autoComplete="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('email')}
                       placeholder="your.email@example.com"
                       required
+                      {...fieldProps('email')}
                     />
+                    <FieldError name="email" message={fieldErrors.email} />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="mobile" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Phone Number *
                     </label>
                     <input
                       type="tel"
                       name="mobile"
+                      autoComplete="tel"
+                      inputMode="tel"
                       value={formData.mobile}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('mobile')}
                       placeholder="10-digit mobile number"
-                      maxLength={10}
                       required
+                      {...fieldProps('mobile')}
                     />
+                    <FieldError name="mobile" message={fieldErrors.mobile} />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="emergencyContact" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Emergency Contact Number *
                     </label>
                     <input
                       type="tel"
                       name="emergencyContact"
+                      autoComplete="off"
+                      inputMode="tel"
                       value={formData.emergencyContact}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('emergencyContact')}
                       placeholder="Emergency contact number"
-                      maxLength={10}
                       required
+                      {...fieldProps('emergencyContact')}
                     />
+                    <FieldError name="emergencyContact" message={fieldErrors.emergencyContact} />
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <label htmlFor="address" className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                     Address
                   </label>
                   <input
                     type="text"
+                    id="address"
                     name="address"
+                    autoComplete="street-address"
                     value={formData.address}
                     onChange={handleInputChange}
                     className="input-field"
@@ -639,27 +608,30 @@ export default function BookingPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="preferredLanguage" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Preferred Language *
                     </label>
                     <select
                       name="preferredLanguage"
                       value={formData.preferredLanguage}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('preferredLanguage')}
                       required
+                      {...fieldProps('preferredLanguage')}
                     >
                       <option value="">Select a language</option>
                       {languageOptions.map((option) => (
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
+                    <FieldError name="preferredLanguage" message={fieldErrors.preferredLanguage} />
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="mode" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Mode *
                     </label>
                     <select
+                      id="mode"
                       name="mode"
                       value={formData.mode}
                       onChange={handleInputChange}
@@ -672,10 +644,11 @@ export default function BookingPage() {
                     </select>
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="consultationType" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       Type of Consultation *
                     </label>
                     <select
+                      id="consultationType"
                       name="consultationType"
                       value={formData.consultationType}
                       onChange={handleInputChange}
@@ -688,37 +661,41 @@ export default function BookingPage() {
                     </select>
                   </div>
                   <div className="flex flex-col">
-                    <label className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                    <label htmlFor="problemDuration" className="block flex-1 text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                       How long has this been a problem for you? *
                     </label>
                     <select
                       name="problemDuration"
                       value={formData.problemDuration}
                       onChange={handleInputChange}
-                      className="input-field"
+                      className={inputClass('problemDuration')}
                       required
+                      {...fieldProps('problemDuration')}
                     >
                       <option value="">Select a duration</option>
                       {durationOptions.map((option) => (
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
+                    <FieldError name="problemDuration" message={fieldErrors.problemDuration} />
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <label className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
+                  <label htmlFor="reasonForCounselling" className="block text-xs uppercase tracking-[0.12em] font-semibold text-ink-soft mb-1.5">
                     Please state why you decided to come for counselling *
                   </label>
                   <textarea
                     name="reasonForCounselling"
                     value={formData.reasonForCounselling}
                     onChange={handleInputChange}
-                    className="input-field"
+                    className={inputClass('reasonForCounselling')}
                     rows={3}
                     placeholder="In a few words, what brings you here?"
                     required
+                    {...fieldProps('reasonForCounselling')}
                   />
+                  <FieldError name="reasonForCounselling" message={fieldErrors.reasonForCounselling} />
                 </div>
 
                 <div className="mt-4">
@@ -730,6 +707,7 @@ export default function BookingPage() {
                       <label key={option} className="flex items-center gap-2 cursor-pointer">
                         <input
                           type="radio"
+                          id={option === 'Yes' ? 'psychiatricMedication' : undefined}
                           name="psychiatricMedication"
                           value={option}
                           checked={formData.psychiatricMedication === option}
@@ -750,6 +728,7 @@ export default function BookingPage() {
                       placeholder="Which medication, and who prescribed it?"
                     />
                   )}
+                  <FieldError name="psychiatricMedication" message={fieldErrors.psychiatricMedication} />
                 </div>
 
                 <div className="mt-4">
@@ -859,13 +838,18 @@ export default function BookingPage() {
                   <input
                     type="checkbox"
                     checked={consentSigned}
-                    onChange={(e) => setConsentSigned(e.target.checked)}
+                    onChange={(e) => {
+                      setConsentSigned(e.target.checked);
+                      clearFieldError('consent');
+                    }}
                     className="w-5 h-5 accent-pine rounded border-ink/30 mt-0.5"
+                    {...fieldProps('consent')}
                   />
                   <span className="text-sm text-ink-soft">
                     I have read and understood the informed consent above. I have had the opportunity to ask questions. I voluntarily agree to participate in counselling sessions under these terms.
                   </span>
                 </label>
+                <FieldError name="consent" message={fieldErrors.consent} />
               </div>
 
               {/* Booking Summary */}
@@ -874,11 +858,11 @@ export default function BookingPage() {
                 <dl className="space-y-2 text-sm">
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Package</dt>
-                    <dd className="text-ink font-medium">{selectedPackage.name}</dd>
+                    <dd className="text-ink font-medium">{DISCOVERY_CALL.name}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Price</dt>
-                    <dd className="text-ink font-medium">{selectedPackage.displayPrice}</dd>
+                    <dd className="text-ink font-medium">{DISCOVERY_CALL.displayPrice}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Date</dt>
@@ -896,7 +880,7 @@ export default function BookingPage() {
                   </div>
                   <div className="flex justify-between gap-4">
                     <dt className="text-ink-soft">Duration</dt>
-                    <dd className="text-ink font-medium">{selectedPackage.id === 'discovery' ? '15–20 minutes' : 'Up to 60 minutes'}</dd>
+                    <dd className="text-ink font-medium">15–20 minutes</dd>
                   </div>
                 </dl>
               </div>
@@ -919,12 +903,7 @@ export default function BookingPage() {
                     : 'bg-pine text-cream hover:bg-pine-dark'
                 }`}
               >
-                {isProcessing
-                  ? 'Processing...'
-                  : selectedPackage.id === 'discovery'
-                    ? 'Confirm discovery call'
-                    : `Pay ${selectedPackage.displayPrice} & confirm`
-                }
+                {isProcessing ? 'Processing...' : 'Confirm discovery call'}
                 {!isProcessing && <ArrowRight size={18} />}
               </button>
 
@@ -934,6 +913,111 @@ export default function BookingPage() {
             </div>
           </div>
         </section>
+      )}
+      {/* ——— What the discovery call is ——— */}
+      <section className="max-w-6xl mx-auto mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Not sure yet?</p>
+            <h2 className="font-display text-2xl sm:text-3xl text-ink leading-snug">
+              What the discovery call <em className="text-pine">actually is</em>
+            </h2>
+            <p className="mt-5 text-ink-soft text-[15px] leading-relaxed">
+              It is a short conversation, not a therapy session, and not a sales call. Its only
+              purpose is to work out whether we are a good fit.
+            </p>
+          </div>
+
+          <div className="lg:col-span-8 max-w-2xl">
+            <dl className="space-y-0">
+              {discoveryFacts.map((fact, index) => (
+                <div
+                  key={index}
+                  className="border-t border-ink/10 last:border-b py-5 grid grid-cols-1 sm:grid-cols-12 gap-1 sm:gap-6"
+                >
+                  <dt className="sm:col-span-4 text-[11px] uppercase tracking-[0.18em] text-ink-soft font-semibold pt-1">
+                    {fact.label}
+                  </dt>
+                  <dd className="sm:col-span-8 text-ink-soft text-[15px] leading-relaxed">
+                    {fact.value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-7 text-ink-soft text-[15px] leading-relaxed">
+              Want the full session-by-session process first?{' '}
+              <Link
+                href="/what-to-expect"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                Read what to expect
+              </Link>
+              , or{' '}
+              <Link
+                href="/faq"
+                className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
+              >
+                the FAQ
+              </Link>{' '}
+              for fees, rescheduling and confidentiality.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ——— After the discovery call ——— */}
+      <section className="max-w-6xl mx-auto mb-20">
+        <p className="eyebrow mb-4">After your discovery call</p>
+        <h2 className="font-display text-2xl sm:text-3xl text-ink mb-10">Session packages</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {sessionPackages.map((pkg) => (
+            <div key={pkg.id} className="rounded-xl border border-ink/15 bg-white overflow-hidden">
+              <div className="p-6">
+                <h3 className="font-display text-xl text-ink mb-1">{pkg.name}</h3>
+                {pkg.popular && (
+                  <p className="text-[11px] uppercase tracking-[0.18em] text-clay font-semibold mb-2">
+                    Most popular
+                  </p>
+                )}
+                <div className="mb-5 mt-2">
+                  <div className="flex items-baseline gap-2">
+                    <span className="font-display text-3xl text-pine">{pkg.displayPrice}</span>
+                    {pkg.originalPrice && (
+                      <span className="text-sm text-ink/40 line-through">{pkg.originalPrice}</span>
+                    )}
+                  </div>
+                  <p className="text-ink-soft text-xs mt-1">{pkg.perSession} per session</p>
+                  {pkg.discount && (
+                    <p className="text-clay text-xs font-medium mt-1">{pkg.discount}</p>
+                  )}
+                </div>
+
+                <ul className="space-y-2 border-t border-ink/10 pt-4">
+                  {pkg.features.map((feature, i) => (
+                    <li key={i} className="flex items-start text-[13px] text-ink-soft leading-relaxed">
+                      <span className="text-pine/50 mr-2 shrink-0">—</span>
+                      <span>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-12 text-center">
+          <a href="#pick-a-time" className="btn-primary">
+            Pick a time
+          </a>
+        </div>
+      </section>
+
+      {/* ——— Phone shortcut to the calendar ——— */}
+      {showStickyCta && !selectedDateTime && (
+        <div className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-ink/10 bg-cream/95 backdrop-blur-sm px-5 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+          <a href="#pick-a-time" className="btn-primary w-full">
+            Pick a time
+          </a>
+        </div>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { googleCalendarService } from '@/lib/googleCalendar';
 import { sendTherapistBookingEmail, sendClientBookingEmail, getBookingNotificationRecipients } from '@/lib/mailer';
 import { buildEventDescription, generateBookingId, type IntakeDetails } from '@/lib/intake';
+import { normalizeMobile } from '@/lib/phone';
 import {
   BOOKING_LEAD_TIME_MINUTES,
   BOOKING_SLOT_HOURS,
@@ -27,15 +28,9 @@ function clean(value: unknown, maxLength = 500): string {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const {
-      packageName,
-      appointmentDate,
-      email,
-      name,
-      mobileNumber,
-      emergencyContact,
-      consentSigned,
-    } = body;
+    const { packageName, appointmentDate, email, name, consentSigned } = body;
+    const mobileNumber = normalizeMobile(body.mobileNumber);
+    const emergencyContact = normalizeMobile(body.emergencyContact);
 
     if (!packageName || !appointmentDate || !email || !name || !mobileNumber) {
       return NextResponse.json(
@@ -66,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!/^\d{10}$/.test(emergencyContact || '')) {
+    if (!/^\d{10}$/.test(emergencyContact)) {
       return NextResponse.json(
         { success: false, error: 'Invalid emergency contact number' },
         { status: 400 }

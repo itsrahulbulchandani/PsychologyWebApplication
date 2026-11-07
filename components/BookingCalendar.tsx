@@ -1,31 +1,56 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import {
   BOOKING_LEAD_TIME_MINUTES,
   BOOKING_SLOT_HOURS,
-  SLOT_BLOCK_MINUTES,
+  QUICK_SLOT_WINDOW_DAYS,
   TIME_SLOTS,
+  formatQuickSlot,
+  formatSlotLabel,
   getIstParts,
   getNowIstParts,
+  getQuickSlots,
+  isSlotBusy,
   istWallClockToUtc,
   parseSlotLabel,
+  type BusyPeriod,
 } from '@/lib/time';
 
-interface BookingCalendarProps {
-  onDateTimeSelect: (date: Date, time: string) => void;
-  selectedPackage: { name: string; price: string; sessions: number } | null;
-}
+export type SlotSource = 'quick' | 'calendar';
 
-interface CalendarBusyPeriod {
-  start: number;
-  end: number;
+interface BookingCalendarProps {
+  onDateTimeSelect: (date: Date, time: string, source: SlotSource) => void;
 }
 
 type SlotState = 'available' | 'booked' | 'past';
 
-export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: BookingCalendarProps) {
+/** Returns null when availability could not be read. */
+async function fetchBusyPeriods(start: Date, end: Date): Promise<BusyPeriod[] | null> {
+  const response = await fetch(
+    `/api/availability?startDate=${start.toISOString()}&endDate=${end.toISOString()}`
+  );
+  if (!response.ok) return null;
+
+  const data = await response.json();
+  if (!data.success || !data.events) return null;
+
+  const periods: BusyPeriod[] = [];
+  data.events.forEach((event: any) => {
+    if (event.status === 'cancelled') return;
+    if (event.start?.dateTime && event.end?.dateTime) {
+      const start = new Date(event.start.dateTime).getTime();
+      const end = new Date(event.end.dateTime).getTime();
+      if (Number.isFinite(start) && Number.isFinite(end)) {
+        periods.push({ start, end });
+      }
+    }
+  });
+  return periods;
+}
+
+export default function BookingCalendar({ onDateTimeSelect }: BookingCalendarProps) {
   // Calendar days and slots are all Asia/Kolkata wall-clock, whatever the
   // visitor's own timezone is.
   const [currentMonth, setCurrentMonth] = useState(() => {
@@ -34,10 +59,16 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
   });
   const [selectedDay, setSelectedDay] = useState<{ year: number; monthIndex: number; day: number } | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-  const [busyPeriods, setBusyPeriods] = useState<CalendarBusyPeriod[]>([]);
+  const [busyPeriods, setBusyPeriods] = useState<BusyPeriod[]>([]);
+  // Quick slots can fall in next month, so they get their own window rather
+  // than depending on whichever month the grid is showing.
+  const [upcomingBusy, setUpcomingBusy] = useState<BusyPeriod[] | null>(null);
+  const [quickSlotsLoading, setQuickSlotsLoading] = useState(true);
   const [loading, setLoading] = useState(false);
   // Re-evaluate which slots are still bookable as time passes.
   const [now, setNow] = useState(() => Date.now());
+  const slotsRef = useRef<HTMLDivElement>(null);
+  const scrollToSlots = useRef(false);
 
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 60000);
@@ -52,27 +83,8 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
         const startOfMonth = istWallClockToUtc(currentMonth.year, currentMonth.monthIndex, 1, 0, 0);
         const startOfNextMonth = istWallClockToUtc(currentMonth.year, currentMonth.monthIndex + 1, 1, 0, 0);
 
-        const response = await fetch(
-          `/api/availability?startDate=${startOfMonth.toISOString()}&endDate=${startOfNextMonth.toISOString()}`
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.events) {
-            const periods: CalendarBusyPeriod[] = [];
-            data.events.forEach((event: any) => {
-              if (event.status === 'cancelled') return;
-              if (event.start?.dateTime && event.end?.dateTime) {
-                const start = new Date(event.start.dateTime).getTime();
-                const end = new Date(event.end.dateTime).getTime();
-                if (Number.isFinite(start) && Number.isFinite(end)) {
-                  periods.push({ start, end });
-                }
-              }
-            });
-            setBusyPeriods(periods);
-          }
-        }
+        const periods = await fetchBusyPeriods(startOfMonth, startOfNextMonth);
+        if (periods) setBusyPeriods(periods);
       } catch (error) {
         console.error('Error fetching booked slots:', error);
       } finally {
@@ -82,6 +94,27 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
 
     fetchBookedSlots();
   }, [currentMonth]);
+
+  useEffect(() => {
+    const start = new Date();
+    const end = new Date(start.getTime() + (QUICK_SLOT_WINDOW_DAYS + 1) * 86400000);
+    fetchBusyPeriods(start, end)
+      .then(setUpcomingBusy)
+      .catch((error) => console.error('Error fetching upcoming slots:', error))
+      .finally(() => setQuickSlotsLoading(false));
+  }, []);
+
+  const quickSlots = useMemo(
+    () => (upcomingBusy ? getQuickSlots(upcomingBusy, new Date(now)) : []),
+    [upcomingBusy, now]
+  );
+
+  // Picking a day reveals the times below the grid, which is off screen on a phone.
+  useEffect(() => {
+    if (!scrollToSlots.current) return;
+    scrollToSlots.current = false;
+    slotsRef.current?.scrollIntoView({ block: 'nearest' });
+  }, [selectedDay]);
 
   const daysInMonth = useMemo(
     () => new Date(Date.UTC(currentMonth.year, currentMonth.monthIndex + 1, 0)).getUTCDate(),
@@ -98,11 +131,8 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
   const slotStartInstant = (day: number, hours: number) =>
     istWallClockToUtc(currentMonth.year, currentMonth.monthIndex, day, hours).getTime();
 
-  const isHourBooked = (day: number, hours: number) => {
-    const slotStart = slotStartInstant(day, hours);
-    const slotEnd = slotStart + SLOT_BLOCK_MINUTES * 60000;
-    return busyPeriods.some((period) => slotStart < period.end && slotEnd > period.start);
-  };
+  const isHourBooked = (day: number, hours: number) =>
+    isSlotBusy(slotStartInstant(day, hours), busyPeriods);
 
   const getSlotState = (day: number, time: string): SlotState => {
     const parsed = parseSlotLabel(time);
@@ -145,8 +175,32 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
 
   const handleDateClick = (day: number) => {
     if (isDateDisabled(day)) return;
+    scrollToSlots.current = true;
     setSelectedDay({ year: currentMonth.year, monthIndex: currentMonth.monthIndex, day });
     setSelectedTime(null);
+  };
+
+  const handleQuickSlot = (slot: Date) => {
+    const { year, monthIndex, day, hours } = getIstParts(slot);
+    const time = formatSlotLabel(hours);
+
+    if (year !== currentMonth.year || monthIndex !== currentMonth.monthIndex) {
+      setCurrentMonth({ year, monthIndex });
+    }
+    setSelectedDay({ year, monthIndex, day });
+    setSelectedTime(time);
+    onDateTimeSelect(slot, time, 'quick');
+  };
+
+  const isQuickSlotSelected = (slot: Date) => {
+    if (!selectedDay || !selectedTime) return false;
+    const { year, monthIndex, day, hours } = getIstParts(slot);
+    return (
+      selectedDay.year === year &&
+      selectedDay.monthIndex === monthIndex &&
+      selectedDay.day === day &&
+      selectedTime === formatSlotLabel(hours)
+    );
   };
 
   const handleTimeClick = (time: string) => {
@@ -158,7 +212,8 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
     // The Date handed upward carries the correct instant for the IST slot.
     onDateTimeSelect(
       istWallClockToUtc(selectedDay.year, selectedDay.monthIndex, selectedDay.day, parsed.hours),
-      time
+      time,
+      'calendar'
     );
   };
 
@@ -213,18 +268,36 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
 
   const selectedDayHasSlots = selectedDay ? dayHasAvailableSlot(selectedDay.day) : false;
 
-  if (!selectedPackage) {
-    return (
-      <div className="bg-sage-pale border border-ink/10 rounded-xl p-8 text-center">
-        <Calendar className="mx-auto mb-4 text-pine" size={40} />
-        <p className="text-ink-soft">Please select a package first to view available dates</p>
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white border border-ink/15 rounded-xl p-6 sm:p-8">
-      
+
+      {/* Next available. Placeholders hold the space so the calendar doesn't jump. */}
+      {(quickSlotsLoading || quickSlots.length > 0) && (
+        <div className="mb-8 border-b border-ink/10 pb-8">
+          <h3 className="font-display text-lg text-ink mb-4">Next available</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {quickSlotsLoading
+              ? [0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-14 rounded-3xl bg-cream-deep animate-pulse" />
+                ))
+              : quickSlots.map((slot) => (
+                  <button
+                    key={slot.getTime()}
+                    onClick={() => handleQuickSlot(slot)}
+                    className={`h-14 px-3 rounded-3xl text-sm leading-snug transition-colors duration-200 border ${
+                      isQuickSlotSelected(slot)
+                        ? 'bg-pine text-cream border-pine'
+                        : 'bg-white text-ink border-ink/15 hover:border-pine/60'
+                    }`}
+                  >
+                    {formatQuickSlot(slot, new Date(now))}
+                  </button>
+                ))}
+          </div>
+          <p className="mt-4 text-sm text-ink-soft">Or choose another date below.</p>
+        </div>
+      )}
+
       {/* Calendar */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-6">
@@ -274,7 +347,7 @@ export default function BookingCalendar({ onDateTimeSelect, selectedPackage }: B
 
       {/* Time slots */}
       {selectedDay && (
-        <div>
+        <div ref={slotsRef}>
           <div className="flex items-center mb-4 border-t border-ink/10 pt-6">
             <Clock className="text-pine mr-2" size={18} />
             <h4 className="font-display text-lg text-ink">Available time slots</h4>
