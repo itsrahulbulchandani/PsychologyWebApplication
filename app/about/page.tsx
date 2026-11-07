@@ -71,12 +71,6 @@ export default function AboutPage() {
     'What you share stays confidential, with the narrow legal and safety exceptions set out in the privacy policy.',
   ];
 
-  const memberships = [
-    'Member, American Psychological Association (Membership No. C2605770239)',
-    'Member, Counselors Council of India',
-    'Registered Psychologist, National Commission for Allied and Healthcare Professions (NCAHP)',
-  ];
-
   return (
     <div className="px-5 sm:px-8">
       <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(profileSchema)} />
@@ -207,7 +201,7 @@ export default function AboutPage() {
                 Professional memberships
               </p>
               <ul className="space-y-2">
-                {memberships.map((item, index) => (
+                {siteConfig.memberships.map((item, index) => (
                   <li key={index} className="text-ink-soft text-[15px] leading-relaxed">
                     <span className="text-pine mr-2">✳</span>
                     {item}

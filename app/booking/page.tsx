@@ -7,7 +7,7 @@ import { AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar, { type SlotSource } from '@/components/BookingCalendar';
 import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
 import { normalizeMobile } from '@/lib/phone';
-import { siteConfig } from '@/lib/site';
+import { siteConfig, whatsappUrl } from '@/lib/site';
 import { trackEvent, BOOKING_CURRENCY, BOOKING_HANDOFF_KEY } from '@/lib/analytics';
 
 const TEXT_LINK = 'text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine';
@@ -16,9 +16,7 @@ const EMAIL_LINK = `mailto:${siteConfig.email}?subject=${encodeURIComponent(
   'Question before booking a discovery call'
 )}`;
 
-const WHATSAPP_LINK = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
-  'Hi Bhavana, I have a question before booking a discovery call.'
-)}`;
+const WHATSAPP_LINK = whatsappUrl('Hi Bhavana, I have a question before booking a discovery call.');
 
 // The only package bookable online; paid sessions are arranged after this call.
 const DISCOVERY_CALL = {
@@ -80,15 +78,17 @@ export default function BookingPage() {
 
   // On a phone the calendar can start below the fold. Only offer the shortcut
   // while it is still ahead: once past it, the bar would sit over the page's
-  // footer, which carries the crisis helpline numbers.
+  // footer, which carries the crisis helpline numbers. The top margin stretches
+  // the observed area far above the screen so that past the calendar still
+  // counts as reached; otherwise a jump straight past it crosses no threshold
+  // and leaves the bar on.
   useEffect(() => {
     const calendar = calendarRef.current;
     if (!calendar) return;
 
     const observer = new IntersectionObserver(
-      ([entry]) =>
-        setShowStickyCta(entry.boundingClientRect.top > 0 && entry.intersectionRatio < 0.25),
-      { threshold: [0, 0.25] }
+      (entries) => setShowStickyCta(!entries[entries.length - 1].isIntersecting),
+      { rootMargin: '100000px 0px -200px 0px' }
     );
     observer.observe(calendar);
     return () => observer.disconnect();
@@ -475,7 +475,7 @@ export default function BookingPage() {
               MA Psychology, Banaras Hindu University. PG Diploma, Jamia Millia Islamia.
             </p>
             <p className="mt-0.5">
-              Registered Psychologist, NCAHP.{' '}
+              Registered Psychologist, NCAHP. Member, American Psychological Association.{' '}
               <Link href="/about" className={TEXT_LINK}>
                 About me
               </Link>
@@ -1039,6 +1039,26 @@ export default function BookingPage() {
               for fees, rescheduling and confidentiality.
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* ——— Professional memberships ——— */}
+      <section className="max-w-6xl mx-auto mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <p className="eyebrow mb-4">Credentials</p>
+            <h2 className="font-display text-2xl sm:text-3xl text-ink leading-snug">
+              Professional <em className="text-pine">memberships</em>
+            </h2>
+          </div>
+          <ul className="lg:col-span-8 max-w-2xl space-y-2">
+            {siteConfig.memberships.map((item) => (
+              <li key={item} className="text-ink-soft text-[15px] leading-relaxed">
+                <span className="text-pine mr-2">✳</span>
+                {item}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

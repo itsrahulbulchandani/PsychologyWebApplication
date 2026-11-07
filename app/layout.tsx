@@ -3,6 +3,7 @@ import { Inter, Cinzel, Fraunces } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import WhatsAppButton from "@/components/WhatsAppButton";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { siteConfig, absoluteUrl } from "@/lib/site";
 import { rootGraph, jsonLdScript } from "@/lib/schema";
@@ -85,6 +86,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <WhatsAppButton />
         {gaId && <GoogleAnalytics gaId={gaId} />}
       </body>
     </html>

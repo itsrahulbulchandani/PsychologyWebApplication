@@ -11,6 +11,11 @@ export const siteConfig = {
   email: 'work.bhavanab@gmail.com',
   // Country code and digits only, as wa.me links require.
   whatsappNumber: '918700144946',
+  memberships: [
+    'Member, American Psychological Association (Membership No. C2605770239)',
+    'Member, Counselors Council of India',
+    'Registered Psychologist, National Commission for Allied and Healthcare Professions (NCAHP)',
+  ],
   locale: 'en_IN',
   lang: 'en-IN',
   // Bhavana's earlier writing home, kept as a verified profile link.
@@ -68,3 +73,7 @@ export const siteConfig = {
 /** Absolute URL for a site-relative path. */
 export const absoluteUrl = (path = '/') =>
   `${siteConfig.url}${path === '/' ? '/' : path}`;
+
+/** WhatsApp chat link with a message already typed in. */
+export const whatsappUrl = (message: string) =>
+  `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(message)}`;
