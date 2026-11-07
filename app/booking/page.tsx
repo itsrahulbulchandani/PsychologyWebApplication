@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Check, AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar from '@/components/BookingCalendar';
 import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
-import { trackEvent, BOOKING_CURRENCY } from '@/lib/analytics';
+import { trackEvent, BOOKING_CURRENCY, BOOKING_HANDOFF_KEY } from '@/lib/analytics';
 
 export default function BookingPage() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
@@ -261,20 +261,6 @@ export default function BookingPage() {
     setIsProcessing(true);
     setError('');
 
-    // Hand the package over to the confirmation page, which only gets a booking id.
-    try {
-      window.sessionStorage.setItem(
-        'sthairyam:booking:pending',
-        JSON.stringify({
-          id: selectedPackage.id,
-          name: selectedPackage.name,
-          price: selectedPackage.price,
-        })
-      );
-    } catch {
-      // Storage blocked: the conversion still fires, just without package detail.
-    }
-
     // All validation passed and the request is about to go out.
     trackEvent('begin_checkout', {
       item_id: selectedPackage.id,
@@ -341,6 +327,22 @@ export default function BookingPage() {
       const data = await response.json();
 
       if (data.success) {
+        // The confirmation page only reports a conversion when it finds this
+        // handoff, so reopening that page later can't count as another lead.
+        try {
+          window.sessionStorage.setItem(
+            BOOKING_HANDOFF_KEY,
+            JSON.stringify({
+              bookingId: data.bookingId,
+              id: selectedPackage.id,
+              name: selectedPackage.name,
+              price: selectedPackage.price,
+            })
+          );
+        } catch {
+          // Storage blocked: the booking stands, only the conversion goes unreported.
+        }
+
         window.location.href = data.bookingId
           ? `/booking/success?bookingId=${encodeURIComponent(data.bookingId)}`
           : '/booking/success';

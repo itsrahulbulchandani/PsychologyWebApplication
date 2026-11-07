@@ -81,19 +81,10 @@ export function trackEvent(eventName: string, params: GtagParams = {}): void {
   waitForBootstrap();
 }
 
-/** Fires an event at most once per browser session for a given key. */
-export function trackEventOnce(key: string, eventName: string, params: GtagParams = {}): void {
-  if (typeof window === 'undefined') return;
-
-  const storageKey = `sthairyam:ga:${key}`;
-  try {
-    if (window.sessionStorage.getItem(storageKey)) return;
-    window.sessionStorage.setItem(storageKey, '1');
-  } catch {
-    // Private mode or blocked storage: fall through and send the event anyway.
-  }
-
-  trackEvent(eventName, params);
-}
-
 export const BOOKING_CURRENCY = 'INR';
+
+/**
+ * sessionStorage key the booking form writes once the server confirms a
+ * booking. The confirmation page consumes it to report the conversion.
+ */
+export const BOOKING_HANDOFF_KEY = 'sthairyam:booking:pending';

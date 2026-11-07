@@ -72,6 +72,11 @@ export async function sendEmail(params: {
         user: config.user,
         pass: config.pass,
       },
+      // Nodemailer's defaults run to minutes, past the end of the serverless
+      // function, which would die here without reporting the failure.
+      connectionTimeout: 10_000,
+      greetingTimeout: 10_000,
+      socketTimeout: 15_000,
     });
 
     const info = await transporter.sendMail({
@@ -88,6 +93,10 @@ export async function sendEmail(params: {
         subject: params.subject,
         rejected: info.rejected,
       });
+      return {
+        success: false,
+        error: `SMTP server rejected ${info.rejected.length} of ${to.length} recipients`,
+      };
     }
 
     return { success: true };

@@ -11,6 +11,10 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+// A booking makes several Google calls and sends two emails one after another.
+// Being cut off midway would leave a calendar event with no emails sent.
+export const maxDuration = 60;
+
 // Free bookings only (no payment). PhonePe flow is disabled.
 // Currently only the Discovery Call is bookable.
 const VALID_FREE_PACKAGES = new Set(['Discovery Call']);
@@ -154,6 +158,8 @@ export async function POST(request: NextRequest) {
       endTime: endTime.toISOString(),
       attendeeEmail: intake.email,
       attendeeName: intake.name,
+      // Stays "pending" if this request dies before the emails finish.
+      privateProperties: { emailStatus: 'pending' },
     });
 
     if (!calendarResult.success) {
@@ -164,6 +170,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const emailFailures: string[] = [];
     const notifyRecipients = getBookingNotificationRecipients();
     const therapistEmail = process.env.THERAPIST_EMAIL;
     if (notifyRecipients.length > 0 && therapistEmail) {
@@ -187,6 +194,7 @@ export async function POST(request: NextRequest) {
           recipients: notifyRecipients,
           error: therapistEmailResult.error,
         });
+        emailFailures.push(`therapist: ${therapistEmailResult.error}`);
       }
 
       const clientEmailResult = await sendClientBookingEmail({
@@ -205,9 +213,16 @@ export async function POST(request: NextRequest) {
           bookingId,
           error: clientEmailResult.error,
         });
+        emailFailures.push(`client: ${clientEmailResult.error}`);
       }
     } else {
       console.error('⚠️ THERAPIST_EMAIL not set, skipping booking emails', { bookingId });
+      emailFailures.push('THERAPIST_EMAIL not set');
+    }
+
+    // Vercel logs last about an hour, so the outcome is kept on the event.
+    if (calendarResult.eventId) {
+      await googleCalendarService.recordEmailOutcome(calendarResult.eventId, emailFailures);
     }
 
     return NextResponse.json({

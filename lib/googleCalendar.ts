@@ -8,7 +8,11 @@ export interface CalendarEvent {
   endTime: string;
   attendeeEmail: string;
   attendeeName: string;
+  /** Stored with this calendar's copy of the event; attendees never see them. */
+  privateProperties?: Record<string, string>;
 }
+
+const EMAIL_ADDRESS = /[^\s<>@]+@[^\s<>@]+/g;
 
  type GoogleApiErrorLike = any;
 
@@ -222,6 +226,9 @@ export class GoogleCalendarService {
             { method: 'popup', minutes: 60 }, // 1 hour before
           ],
         },
+        ...(eventDetails.privateProperties && {
+          extendedProperties: { private: eventDetails.privateProperties },
+        }),
       };
 
       const response = await withTimeout(
@@ -260,6 +267,56 @@ export class GoogleCalendarService {
         success: false,
         error: extracted.message || 'Failed to create calendar event',
       };
+    }
+  }
+
+  /**
+   * Records how a booking's emails went on its calendar event, the only durable
+   * record a booking has. A failure also turns the event red (colorId 11, unused
+   * on this calendar) so it shows up without running a query. Attendees are not
+   * notified, addresses are stripped from the stored error, and a failure here
+   * never fails the booking.
+   */
+  async recordEmailOutcome(eventId: string, failures: string[]): Promise<{ success: boolean }> {
+    const failed = failures.length > 0;
+
+    try {
+      await withTimeout(this.ensureAccessToken(), 15_000, 'Google OAuth access token refresh');
+
+      await withTimeout(
+        this.calendar.events.patch(
+          {
+            calendarId: 'primary',
+            eventId,
+            sendUpdates: 'none',
+            requestBody: {
+              ...(failed && { colorId: '11' }),
+              extendedProperties: {
+                private: {
+                  emailStatus: failed ? 'failed' : 'sent',
+                  ...(failed && {
+                    emailError: failures.join('; ').replace(EMAIL_ADDRESS, '[address]').slice(0, 500),
+                  }),
+                },
+              },
+            },
+          },
+          { timeout: 20_000 }
+        ),
+        25_000,
+        'Google Calendar events.patch'
+      );
+
+      return { success: true };
+    } catch (error) {
+      const extracted = extractGoogleApiError(error);
+      console.error('Could not record email outcome on calendar event:', {
+        eventId,
+        failed,
+        message: extracted.message,
+        status: extracted.status,
+      });
+      return { success: false };
     }
   }
 
