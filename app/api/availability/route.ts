@@ -19,9 +19,16 @@ export async function GET(request: NextRequest) {
     const result = await googleCalendarService.getEventsInRange(startDate, endDate);
 
     if (result.success) {
+      // This route is public. Calendar events hold client names, emails, intake
+      // answers and Meet links, so only the times the booking calendar needs
+      // may leave it. Keep this an allowlist: never spread the event.
       return NextResponse.json({
         success: true,
-        events: result.events,
+        events: (result.events ?? []).map((event) => ({
+          status: event.status,
+          start: { dateTime: event.start?.dateTime },
+          end: { dateTime: event.end?.dateTime },
+        })),
       });
     } else {
       return NextResponse.json(
