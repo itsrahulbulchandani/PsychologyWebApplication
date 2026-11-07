@@ -6,6 +6,7 @@ import { normalizeMobile } from '@/lib/phone';
 import {
   BOOKING_LEAD_TIME_MINUTES,
   BOOKING_SLOT_HOURS,
+  SLOT_BLOCK_MINUTES,
   getIstParts,
   isSlotTooSoon,
 } from '@/lib/time';
@@ -133,10 +134,13 @@ export async function POST(request: NextRequest) {
 
     const endTime = new Date(startTime.getTime() + 20 * 60000);
 
-    // Reject if the slot is already taken
+    // Reject if the slot is already taken. This must match isSlotBusy, which
+    // decides what the booking calendar offers: Google compares these bounds
+    // exclusively, so an event ending exactly at the slot start is no conflict.
+    // Widening them made the page offer slots that always failed here.
     const existingEvents = await googleCalendarService.getEventsInRange(
-      new Date(startTime.getTime() - 60000).toISOString(),
-      new Date(endTime.getTime() + 60000).toISOString()
+      startTime.toISOString(),
+      new Date(startTime.getTime() + SLOT_BLOCK_MINUTES * 60000).toISOString()
     );
 
     if (existingEvents.success && existingEvents.events && existingEvents.events.length > 0) {
