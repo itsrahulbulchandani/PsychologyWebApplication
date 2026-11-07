@@ -9,6 +9,8 @@ export const siteConfig = {
   // even if the environment variable is missing on a deployment.
   url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.sthairyam.co.in',
   email: 'work.bhavanab@gmail.com',
+  // Country code and digits only, as wa.me links require.
+  whatsappNumber: '918700144946',
   locale: 'en_IN',
   lang: 'en-IN',
   // Bhavana's earlier writing home, kept as a verified profile link.

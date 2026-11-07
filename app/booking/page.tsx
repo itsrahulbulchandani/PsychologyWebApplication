@@ -1,12 +1,24 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { AlertCircle, ArrowRight } from 'lucide-react';
 import BookingCalendar, { type SlotSource } from '@/components/BookingCalendar';
 import { BOOKING_LEAD_TIME_MINUTES, isSlotTooSoon } from '@/lib/time';
 import { normalizeMobile } from '@/lib/phone';
+import { siteConfig } from '@/lib/site';
 import { trackEvent, BOOKING_CURRENCY, BOOKING_HANDOFF_KEY } from '@/lib/analytics';
+
+const TEXT_LINK = 'text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine';
+
+const EMAIL_LINK = `mailto:${siteConfig.email}?subject=${encodeURIComponent(
+  'Question before booking a discovery call'
+)}`;
+
+const WHATSAPP_LINK = `https://wa.me/${siteConfig.whatsappNumber}?text=${encodeURIComponent(
+  'Hi Bhavana, I have a question before booking a discovery call.'
+)}`;
 
 // The only package bookable online; paid sessions are arranged after this call.
 const DISCOVERY_CALL = {
@@ -436,7 +448,7 @@ export default function BookingPage() {
   return (
     <div className="px-5 sm:px-8">
       {/* ——— Header ——— */}
-      <section className="max-w-6xl mx-auto pt-16 pb-12 lg:pt-24 animate-fadeInUp">
+      <section className="max-w-6xl mx-auto pt-10 pb-8 sm:pt-16 sm:pb-12 lg:pt-24 animate-fadeInUp">
         <p className="eyebrow mb-6">Booking</p>
         <h1 className="font-display text-4xl sm:text-6xl text-ink leading-tight">
           Book a free <em className="text-pine">discovery call</em>
@@ -446,6 +458,30 @@ export default function BookingPage() {
           have a free 15 to 20 minute video call with me, Bhavana Bulchandani, counselling
           psychologist. There is no payment and no obligation to book a session afterwards.
         </p>
+        <div className="mt-6 flex items-center gap-4">
+          <span className="relative block h-16 w-16 shrink-0 overflow-hidden rounded-full ring-1 ring-ink/10">
+            <Image
+              src="/bhavana.webp"
+              alt="Bhavana Bulchandani, counselling psychologist"
+              fill
+              sizes="64px"
+              className="object-cover object-center"
+              priority
+            />
+          </span>
+          <div className="text-sm leading-snug text-ink-soft">
+            <p className="font-medium text-ink">{siteConfig.therapist}</p>
+            <p className="mt-0.5">
+              MA Psychology, Banaras Hindu University. PG Diploma, Jamia Millia Islamia.
+            </p>
+            <p className="mt-0.5">
+              Registered Psychologist, NCAHP.{' '}
+              <Link href="/about" className={TEXT_LINK}>
+                About me
+              </Link>
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* ——— Session facts ——— */}
@@ -474,6 +510,40 @@ export default function BookingPage() {
           </div>
         )}
         <BookingCalendar onDateTimeSelect={handleDateTimeSelect} />
+        <div className="mt-6 text-center text-sm text-ink-soft leading-relaxed">
+          <p>
+            Have a question before you book?{' '}
+            <a
+              href={WHATSAPP_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={TEXT_LINK}
+              onClick={() => trackEvent('booking_contact_clicked', { channel: 'whatsapp' })}
+            >
+              Message me on WhatsApp
+            </a>{' '}
+            or{' '}
+            <a
+              href={EMAIL_LINK}
+              className={TEXT_LINK}
+              onClick={() => trackEvent('booking_contact_clicked', { channel: 'email' })}
+            >
+              email me
+            </a>
+            .
+          </p>
+          <p className="mt-1 text-xs">
+            I reply when I can, so this is not for urgent help. In a crisis, call Tele-MANAS on{' '}
+            <a href="tel:14416" className={TEXT_LINK}>
+              14416
+            </a>{' '}
+            or emergency services on{' '}
+            <a href="tel:112" className={TEXT_LINK}>
+              112
+            </a>
+            .
+          </p>
+        </div>
       </section>
 
       {/* ——— Step 2: Details & Consent ——— */}
@@ -495,15 +565,22 @@ export default function BookingPage() {
               , {selectedDateTime.time} IST
             </span>
             .{' '}
-            <a
-              href="#pick-a-time"
-              className="text-pine underline underline-offset-4 decoration-pine/30 hover:decoration-pine"
-            >
+            <a href="#pick-a-time" className={TEXT_LINK}>
               Change
             </a>
           </p>
           <div className="bg-white border border-ink/15 rounded-xl p-6 sm:p-10" onFocus={handleFormFocus}>
             <div className="space-y-8">
+              {/* Why these questions */}
+              <div className="bg-sage-pale border border-ink/10 rounded-lg p-4 text-sm text-ink-soft leading-relaxed">
+                <p className="font-medium text-ink mb-1">Why I ask these questions</p>
+                <p>
+                  They help me prepare, so we can spend our time on what matters to you. A few words
+                  is enough, and there are no wrong answers. Your emergency contact is used only if
+                  your safety is at immediate risk.
+                </p>
+              </div>
+
               {/* Client Information */}
               <div>
                 <h3 className="font-display text-xl text-ink border-b border-ink/10 pb-3 mb-6">
